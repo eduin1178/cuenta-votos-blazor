@@ -1,6 +1,12 @@
-using CuentaVotos.Data;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+
+using CuentaVotos.Core.Account;
+using CuentaVotos.Core.Account.Login;
+using CuentaVotos.Data.LiteDb;
+using CuentaVotos.Repository;
+using CuentaVotos.Services;
+using CuentaVotos.Sqlite;
+using LiteDB;
+using Microsoft.EntityFrameworkCore;
 
 namespace CuentaVotos
 {
@@ -13,7 +19,14 @@ namespace CuentaVotos
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-            builder.Services.AddSingleton<WeatherForecastService>();
+
+            
+            builder.Services.AddSingleton(x=> new LiteDbContext(builder.Configuration.GetValue<string>("ConnectionStrings:AppDbContext")));
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<LoginModel>();
+            builder.Services.AddScoped<UsersList>();
+            builder.Services.AddScoped<UserRegisterModel>();
 
             var app = builder.Build();
 

@@ -1,21 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="LiteDB" Version="5.0.17" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CuentaVostos.Entities\CuentaVostos.Entities.csproj" />
     <ProjectReference Include="..\CuentaVotos.Core\CuentaVotos.Core.csproj" />
     <ProjectReference Include="..\CuentaVotos.Data.LiteDb\CuentaVotos.Data.LiteDb.csproj" />
-    <ProjectReference Include="..\CuentaVotos.Repository\CuentaVotos.Repository.csproj" />
-    <ProjectReference Include="..\CuentaVotos.Services\CuentaVotos.Services.csproj" />
+    <ProjectReference Include="..\CuentaVotos.Sqlite\CuentaVotos.Sqlite.csproj" />
   </ItemGroup>
 
 </Project>
