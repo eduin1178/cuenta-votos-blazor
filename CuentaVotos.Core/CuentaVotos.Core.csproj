@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Shared\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\CuentaVotos.Repository\CuentaVotos.Repository.csproj" />
   </ItemGroup>
 

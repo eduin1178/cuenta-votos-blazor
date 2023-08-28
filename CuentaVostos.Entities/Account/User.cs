@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CuentaVotos.Entiies.Account
+namespace CuentaVotos.Entities.Account
 {
     public class User
     {
@@ -15,7 +15,8 @@ namespace CuentaVotos.Entiies.Account
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
-        public string Addres { get; set; }
+        public int RoleId { get; set; } = 1;
+        public int StateId { get; set; } = 0;
         public DateTime Created { get; set; } = DateTime.Now;
     }
 }

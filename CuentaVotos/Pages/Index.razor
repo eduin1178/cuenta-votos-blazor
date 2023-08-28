@@ -1,28 +1,17 @@
 ﻿@page "/"
-@inject LoginModel _loginModel;
 
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
-
-<EditForm Model="_loginModel" OnSubmit="()=>_loginModel.Login()">
-    <input type="text" class="form-control" placeholder="Usuario" @bind="_loginModel.Email" />
-    <input type="password" class="form-control" placeholder="Usuario" @bind="_loginModel.Password" />
-    <button type="submit" class="btn btn-primary">Login</button>
-    <div class="alert alert-info">
-        <p>@_loginModel.LoginMessage</p>
-    </div>
-</EditForm>
+<div class="container">
+    <h1>Hola Mundo</h1>
+    <h2>Probando</h2>
+</div>
 
 
-
+<h1>Hola Mundo del gallin!</h1>
 
 @code {
-    
-       
+
+   
 }

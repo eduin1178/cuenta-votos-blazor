@@ -1,0 +1,121 @@
+﻿<div class="@cssClass"
+     data-backdrop="static"
+     tabindex="-1"
+     role="@role"
+     aria-hidden="@hiden"
+     aria-modal="@modal"
+     style="@styleCss">
+
+    <div class="modal-dialog @GetSize(Size) animate__animate animate__flipInY" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@Title</h5>
+                <button type="button" @onclick="(()=>CloseModal())" class="btn btn-xs btn-icon-danger" data-dismiss="modal" aria-label="Close">
+                    <i aria-hidden="true" class="oi oi-circle-x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                @if (RenderContent)
+                {
+                    @Content
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+
+    [Parameter]
+    public string Title { get; set; }
+
+    [Parameter]
+    public RenderFragment Content { get; set; }
+
+    [Parameter]
+    public ModalSize Size { get; set; } = ModalSize.Medium;
+
+    public bool RenderContent { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnOpen { get; set; }
+
+    public string cssClass { get; set; } = "modal fade";
+    public string styleCss { get; set; } = "display: none;";
+    public string hiden { get; set; } = "true";
+    public string modal { get; set; } = "false";
+    public string role { get; set; } = "none";
+    public string position { get; set; } = "modal-dialog-centered";
+
+    ElementReference Container;
+
+    public async Task OpenModal(bool renderContent = true)
+    {
+
+        RenderContent = renderContent;
+
+        cssClass = "modal fade show";
+        styleCss = "background-color:rgba(0,0,0,0.4); display: block; padding-right: 17px;";
+        hiden = "false";
+        modal = "true";
+        role = "dialog";
+
+
+        await OnOpen.InvokeAsync(true);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task CloseModal(bool renderContent = false)
+    {
+        RenderContent = renderContent;
+
+        cssClass = "modal fade";
+        styleCss = "display: none;";
+        hiden = "true";
+        modal = "false";
+        role = "none";
+        await OnClose.InvokeAsync(true);
+        await InvokeAsync(StateHasChanged);
+
+    }
+
+
+    public enum ModalSize
+    {
+        Small,
+        Medium,
+        Large,
+        XtraLarge
+    }
+
+    private string GetSize(ModalSize size)
+    {
+        string modalSize;
+
+        switch (size)
+        {
+            case ModalSize.Small:
+                modalSize = "modal-sm";
+                break;
+            case ModalSize.Medium:
+                modalSize = "modal-md";
+                break;
+            case ModalSize.Large:
+                modalSize = "modal-lg";
+                break;
+            case ModalSize.XtraLarge:
+                modalSize = "modal-xl";
+                break;
+            default:
+                modalSize = "modal-md";
+                break;
+        }
+
+        return modalSize;
+    }
+}
+

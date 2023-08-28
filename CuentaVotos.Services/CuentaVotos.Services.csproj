@@ -10,7 +10,6 @@
     <ProjectReference Include="..\CuentaVostos.Entities\CuentaVostos.Entities.csproj" />
     <ProjectReference Include="..\CuentaVotos.Core\CuentaVotos.Core.csproj" />
     <ProjectReference Include="..\CuentaVotos.Data.LiteDb\CuentaVotos.Data.LiteDb.csproj" />
-    <ProjectReference Include="..\CuentaVotos.Sqlite\CuentaVotos.Sqlite.csproj" />
   </ItemGroup>
 
 </Project>

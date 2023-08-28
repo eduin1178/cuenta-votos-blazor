@@ -1,0 +1,145 @@
+﻿<div id="kt_demo_panel" class="offcanvas offcanvas-right p-10 @cssClass" style="width:@widthCss; right:@rigthCss;">
+    
+    <div class="offcanvas-header d-flex align-items-center justify-content-between pb-7" kt-hidden-height="46" style="">
+        <h4 class="font-weight-bolder m-0">@Title</h4>
+        <a @onclick="(()=>CloseBox())" class="btn btn-xs btn-icon btn-light btn-hover-primary" id="kt_demo_panel_close">
+            <i class="ki ki-close icon-xs text-muted"></i>
+        </a>
+    </div>
+    
+    <div class="offcanvas-content">
+    
+        <div class="offcanvas-wrapper mb-5 scroll-pull scroll ps ps--active-y" style="min-height:100%; overflow: hidden;">
+            @if (RenderContent)
+            {
+                @Content
+            }
+        </div>
+    
+        @if (ShowFooter)
+        {
+            <div class="offcanvas-footer" kt-hidden-height="39">
+                @Footer
+            </div>
+        }
+
+    </div>
+    
+</div>
+@if (cssClass == "offcanvas-on")
+{
+    <div class="offcanvas-overlay" @onclick="(()=>CloseBox())"></div>
+}
+
+@code {
+
+
+    [Parameter]
+    public string Title { get; set; }
+
+    [Parameter]
+    public RenderFragment Content { get; set; }
+
+    [Parameter]
+    public RenderFragment Footer { get; set; }
+
+    [Parameter]
+    public BoxWidth Width { get; set; } = BoxWidth.Medium;
+
+    public bool RenderContent { get; set; }
+
+    public bool ShowFooter { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnOpen { get; set; }
+
+    public string cssClass { get; set; } = "offcanvas-off";
+    public string widthCss { get; set; }
+    public string rigthCss { get; set; }
+
+    ElementReference Container;
+
+    public async Task OpenBox(bool renderContent = true, bool showFooter = true)
+    {
+
+        RenderContent = renderContent;
+        ShowFooter = showFooter;
+
+        cssClass = "offcanvas-on";
+        widthCss = GetWidth(Width);
+        rigthCss = "0px";
+
+        await OnOpen.InvokeAsync(true);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    public async Task CloseBox(bool renderContent = false)
+    {
+        RenderContent = renderContent;
+
+        cssClass = "offcanvas-off";
+        rigthCss = BoxHideWidth(Width);
+
+        await OnClose.InvokeAsync(true);
+        await InvokeAsync(StateHasChanged);
+
+    }
+
+
+    public enum BoxWidth
+    {
+        Small,
+        Medium,
+        Large,
+        XtraLarge
+    }
+
+    private string GetWidth(BoxWidth width)
+    {
+        string boxWidth;
+
+        switch (width)
+        {
+            case BoxWidth.Small:
+                boxWidth = "375px";
+                break;
+            case BoxWidth.Medium:
+                boxWidth = "475px";
+                break;
+            case BoxWidth.Large:
+                boxWidth = "575px";
+                break;
+            default:
+                boxWidth = "375px";
+                break;
+        }
+
+        return boxWidth;
+    }
+
+    private string BoxHideWidth(BoxWidth width)
+    {
+        string boxHideWidth;
+
+        switch (width)
+        {
+            case BoxWidth.Small:
+                boxHideWidth = "-375px";
+                break;
+            case BoxWidth.Medium:
+                boxHideWidth = "-475px";
+                break;
+            case BoxWidth.Large:
+                boxHideWidth = "-575px";
+                break;
+            default:
+                boxHideWidth = "-375px";
+                break;
+        }
+
+        return boxHideWidth;
+    }
+}

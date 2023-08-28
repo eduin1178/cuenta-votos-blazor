@@ -1,0 +1,86 @@
+﻿@page "/Account/Login"
+@using Microsoft.AspNetCore.WebUtilities;
+@inject ApiClient _apiClient
+@inject ProtectedLocalStorage _localStorage
+@inject SweetAlertService _swal
+@inject IToaster _toaster
+@inject NavigationManager _navigation
+@inject AuthenticationStateProvider _authProvider
+
+<div class="container">
+    <EditForm Model="Model" OnValidSubmit="Autenticate">
+        <Card>
+            <Header>
+                Login
+            </Header>
+            <Body>
+                <input type="email" class="form-control"
+                       placeholder="ejemplo@gmail.com"
+                       @bind="Model.Email" />
+                <input type="password" class="form-control"
+                       placeholder="Contraseña"
+                       @bind="Model.Password" />
+                <button type="submit" class="btn btn-success">Iniciar sesión</button>
+                <a href="/Account/Register"  class="btn btn-primary">Registrarme</a>
+            </Body>
+        </Card>
+    </EditForm>
+</div>
+
+@code {
+    public UserLogin Model { get; set; } = new UserLogin();
+
+    protected async Task Autenticate()
+    {
+        var url = "api/Account/Login";
+        var res = await _apiClient.PostAsync<AccessTokenModel, UserLogin>(url, Model);
+
+        if (res.IsSuccess)
+        {
+            _apiClient.SetAuthorization(res.Model.AccessToken);
+            await _localStorage.SetAsync("CuentaVotosAuth", res.Model);
+
+            var profileRes = await GetProfile();
+            if (!profileRes.IsSuccess)
+            {
+                _toaster.Error(res.Message);
+                return;
+            }
+
+            await _localStorage.SetAsync("CuentaVotosProfile", profileRes.Model);
+
+            await _authProvider.GetAuthenticationStateAsync();
+
+           
+            var uri = _navigation.ToAbsoluteUri(_navigation.Uri);
+            QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var returnUrl);
+
+            if (string.IsNullOrEmpty(returnUrl))
+            {
+                _navigation.NavigateTo($"/", forceLoad: false);
+            }
+            else
+            {
+                _navigation.NavigateTo($"{returnUrl}", forceLoad: false);
+            }
+
+        }
+        else
+        {
+            var confirm = _swal.FireAsync(new SweetAlertOptions
+                {
+                    Text = res.Message,
+                    ShowCancelButton = false,
+                    ConfirmButtonText = "Continuar"
+                });
+        }
+
+
+    }
+
+    protected async Task<ModelResult<UserProfile>> GetProfile()
+    {
+        var res = await _apiClient.GetAsync<UserProfile>("api/Account/Profile");
+        return res;
+    }
+}
