@@ -10,4 +10,8 @@
     <ProjectReference Include="..\CuentaVotos.Repository\CuentaVotos.Repository.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Users\" />
+  </ItemGroup>
+
 </Project>

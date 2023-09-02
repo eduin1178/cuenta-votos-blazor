@@ -2,10 +2,8 @@
 using CuentaVotos.Entities.Account;
 using CuentaVotos.Repository;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -28,7 +26,7 @@ namespace CuentaVotos.Controllers
         [HttpGet("Profile")]
         public IActionResult Profile()
         {
-            
+
             if (string.IsNullOrEmpty(User.Identity?.Name))
             {
                 return Unauthorized();
@@ -50,7 +48,7 @@ namespace CuentaVotos.Controllers
                 {
                     IsSuccess = true,
                     Message = "OK",
-                    Model= token,
+                    Model = token,
                 };
 
                 return Ok(result);
@@ -106,7 +104,24 @@ namespace CuentaVotos.Controllers
         [HttpPost("ChangePassword")]
         public IActionResult ChangePassword(UserChangePassword model)
         {
-            var res = _accountRepository.ChangePassword(model);
+            var userCode = User.Identity?.Name;
+            if (string.IsNullOrEmpty(userCode))
+            {
+                return Unauthorized();
+            }
+            var res = _accountRepository.ChangePassword(userCode, model);
+            return Ok(res);
+        }
+
+        [HttpPost("UpdateProfile")]
+        public IActionResult UpdateProfile(UserProfile model)
+        {
+            var userCode = User.Identity?.Name;
+            if (string.IsNullOrWhiteSpace(userCode))
+            {
+                return Unauthorized();
+            }
+            var res = _accountRepository.UpdateProfile(userCode, model);
             return Ok(res);
         }
     }

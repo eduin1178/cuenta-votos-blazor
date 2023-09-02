@@ -1,5 +1,5 @@
 ﻿using CuentaVotos.Entities.Account;
-using CuentaVotos.Entiies.Shared;
+using CuentaVotos.Entities.Shared;
 using CuentaVotos.Repository;
 using System;
 using System.Collections.Generic;

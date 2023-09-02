@@ -1,4 +1,4 @@
-﻿
+﻿using Blazored.LocalStorage;
 using CuentaVotos.Api;
 using CuentaVotos.Entities.Account;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -9,49 +9,55 @@ namespace CuentaVotos.Application
 {
     public class AppAuthenticationProvider : AuthenticationStateProvider
     {
-        ProtectedLocalStorage _localStorage;
+        private readonly HttpContextAccessor _httpContext;
+        private readonly ILocalStorageService _localStorage;
         ApiClient _client;
         private AuthenticationState Anonimo = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-        public AppAuthenticationProvider(ProtectedLocalStorage localStorage, ApiClient client)
+        public AppAuthenticationProvider(HttpContextAccessor httpContext, ILocalStorageService localStorage, ApiClient client)
         {
+            _httpContext = httpContext;
             _localStorage = localStorage;
             _client = client;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            try
-            {
-                var userToken = await _localStorage.GetAsync<AccessTokenModel>("CuentaVotosAuth");
-                var userAuth = userToken.Success ? userToken.Value : null;
-                if (userAuth == null)
-                {
-                    return await Task.FromResult(Anonimo);
-                }
-                var ahora = DateTime.Now;
-                if (userAuth.Expires < ahora)
-                {
-                    //TODO: Refreshtoken
-                    return await Task.FromResult(Anonimo);
-                }
-                _client.SetAuthorization(userAuth.AccessToken);
+
+            var sesion = _httpContext.HttpContext.Session;
+
+            Console.WriteLine(sesion);
+            //try
+            //{
+            //    var userToken = await _localStorage.GetItemAsync<AccessTokenModel>("CuentaVotosAuth");
                 
-                var userProfile = await _localStorage.GetAsync<UserProfile>("CuentaVotosProfile");
-                var userSession = userProfile.Success ? userProfile.Value : null;
-                if (userSession == null)
-                {
-                    return await Task.FromResult(Anonimo);
-                }
+            //    if (userToken == null)
+            //    {
+            //        return await Task.FromResult(Anonimo);
+            //    }
+            //    var ahora = DateTime.Now;
+            //    if (userToken.Expires < ahora)
+            //    {
+            //        //TODO: Refreshtoken
+            //        return await Task.FromResult(Anonimo);
+            //    }
+            //    _client.SetAuthorization(userToken.AccessToken);
+                
+            //    var userProfile = await _localStorage.GetItemAsync<UserProfile>("CuentaVotosProfile");
+                
+            //    if (userProfile == null)
+            //    {
+            //        return await Task.FromResult(Anonimo);
+            //    }
 
-                var user = SignIn(userSession);
+            //    var user = SignIn(userProfile);
 
-                return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(user)));
-            }
-            catch (Exception)
-            {
+            //    return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(user)));
+            //}
+            //catch (Exception ex)
+            //{
 
+            //}
                 return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
-            }
         }
 
      

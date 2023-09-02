@@ -1,27 +1,53 @@
 ﻿@page "/Account/Login"
 @using Microsoft.AspNetCore.WebUtilities;
 @inject ApiClient _apiClient
-@inject ProtectedLocalStorage _localStorage
+@inject ILocalStorageService _localStorage
 @inject SweetAlertService _swal
 @inject IToaster _toaster
 @inject NavigationManager _navigation
 @inject AuthenticationStateProvider _authProvider
+@inject IHttpContextAccessor _httpContext
 
-<div class="container">
+<div class="offset-lg-3 col-lg-6">
     <EditForm Model="Model" OnValidSubmit="Autenticate">
+        <DataAnnotationsValidator />
         <Card>
             <Header>
-                Login
+                Iniciar sesión
             </Header>
             <Body>
-                <input type="email" class="form-control"
-                       placeholder="ejemplo@gmail.com"
-                       @bind="Model.Email" />
-                <input type="password" class="form-control"
-                       placeholder="Contraseña"
-                       @bind="Model.Password" />
-                <button type="submit" class="btn btn-success">Iniciar sesión</button>
-                <a href="/Account/Register"  class="btn btn-primary">Registrarme</a>
+                <div class="row">
+                    <div class="col-12">
+
+                        <span>Correo electrónico</span>
+                        <input type="email" class="form-control"
+                               placeholder="ejemplo@gmail.com"
+                               @bind="Model.Email" />
+
+                               <ValidationMessage For="(()=>Model.Email)" />
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <span>Contraseña</span>
+                        <input type="password" class="form-control"
+                               placeholder="Contraseña"
+                               @bind="Model.Password" />
+                               <ValidationMessage For="(()=>Model.Password)" />
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+
+                        <button type="submit" class="btn btn-success">
+                            <i class="oi oi-key"></i>
+                            Iniciar sesión
+                        </button>
+                        <a href="/Account/Register" class="btn btn-secondary float-end">
+                            <i class="oi oi-person"></i> Registrarme
+                        </a>
+                    </div>
+                </div>
             </Body>
         </Card>
     </EditForm>
@@ -38,7 +64,9 @@
         if (res.IsSuccess)
         {
             _apiClient.SetAuthorization(res.Model.AccessToken);
-            await _localStorage.SetAsync("CuentaVotosAuth", res.Model);
+
+            
+            await _localStorage.SetItemAsync<AccessTokenModel>("CuentaVotosAuth", res.Model);
 
             var profileRes = await GetProfile();
             if (!profileRes.IsSuccess)
@@ -47,11 +75,11 @@
                 return;
             }
 
-            await _localStorage.SetAsync("CuentaVotosProfile", profileRes.Model);
+            await _localStorage.SetItemAsync<UserProfile>("CuentaVotosProfile", profileRes.Model);
 
             await _authProvider.GetAuthenticationStateAsync();
 
-           
+
             var uri = _navigation.ToAbsoluteUri(_navigation.Uri);
             QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var returnUrl);
 

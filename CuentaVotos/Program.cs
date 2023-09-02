@@ -1,3 +1,5 @@
+using BlazorDownloadFile;
+using Blazored.LocalStorage;
 using CuentaVotos.Api;
 using CuentaVotos.Application;
 using CuentaVotos.Core.Account;
@@ -8,10 +10,13 @@ using CuentaVotos.Services;
 using CurrieTechnologies.Razor.SweetAlert2;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.IdentityModel.Tokens;
 using Sotsera.Blazor.Toaster.Core.Models;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CuentaVotos
 {
@@ -22,10 +27,31 @@ namespace CuentaVotos
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddRazorPages();
+            builder.Services.AddControllers();
             builder.Services.AddServerSideBlazor();
             builder.Services.AddHttpContextAccessor();
-            builder.Services.AddControllers();
+            builder.Services.AddScoped<ProtectedLocalStorage>();
+            builder.Services.AddSession(x=>
+            {
+                x.IdleTimeout = new TimeSpan(1,0,0);
+                x.Cookie.Name = "cuentavotos";
+                x.IOTimeout = new TimeSpan(24, 0, 0);
+                x.Cookie.Path = "/";
+            });
+            builder.Services.AddScoped<TokenProvider>();
+            builder.Services.AddScoped<HttpContextAccessor>();
+            builder.Services.AddBlazoredLocalStorage(config =>
+            {
+                config.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+                config.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                config.JsonSerializerOptions.IgnoreReadOnlyProperties = true;
+                config.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                config.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
+                config.JsonSerializerOptions.WriteIndented = false;
+            });
 
+            builder.Services.AddScoped<AuthenticationStateProvider, AppAuthenticationProvider>();
 
             var allowedOrigins = builder.Configuration.GetSection("Origins").Get<string[]>();
 
@@ -36,7 +62,6 @@ namespace CuentaVotos
                     .AllowAnyHeader()
                     .AllowAnyOrigin();
             }));
-
 
 
             var key = Encoding.ASCII.GetBytes(builder.Configuration.GetSection("Jwt:Key").Value);
@@ -63,10 +88,16 @@ namespace CuentaVotos
             });
 
 
-            builder.Services.AddScoped<HttpContextAccessor>();
-            builder.Services.AddScoped<AuthenticationStateProvider, AppAuthenticationProvider>();
-
-            builder.Services.AddSingleton(x => new LiteDbContext(@"C:\Data\MyData.litedb"));
+            
+            var pathDb = $"{builder.Configuration.GetValue<string>("ConnectionStrings:AppDbContext")}";
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(pathDb));
+            }
+            catch (Exception)
+            {
+            }
+            builder.Services.AddSingleton(x => new LiteDbContext(pathDb));
 
             builder.Services.AddTransient<IAccountRepository, AccountRespository>();
             builder.Services.AddTransient<UserRegisterUseCase>();
@@ -77,6 +108,7 @@ namespace CuentaVotos
 
 
             builder.Services.AddScoped<ApiClient>();
+            builder.Services.AddBlazorDownloadFile(ServiceLifetime.Scoped);
 
             builder.Services.AddSweetAlert2();
             builder.Services.AddToaster(config =>
@@ -96,6 +128,7 @@ namespace CuentaVotos
                 config.HideTransitionDuration = 100;
             });
 
+            
 
             var app = builder.Build();
 
@@ -112,13 +145,14 @@ namespace CuentaVotos
 
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseSession();
 
             app.MapControllers();
             app.MapBlazorHub();
             app.MapFallbackToPage("/_Host");
 
-
             app.Run();
+
         }
     }
 }

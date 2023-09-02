@@ -1,11 +1,18 @@
 ﻿@page "/Admin/Users"
-@attribute [Authorize]
+@attribute [Authorize(Roles ="0")]
 @using CuentaVotos.Core.Users;
 @using CuentaVotos.Entities.Account;
 @inject UsersManager Model
 @inject SweetAlertService _swal
 @inject IToaster _toaster
 
+<div class="row mb-2">
+    <div class="col">
+        <a href="Account/Register" class="btn btn-primary">
+            <i class="oi oi-plus"></i> Agregar Usuario
+        </a>
+    </div>
+</div>
 @if (Model.Users != null)
 {
     <div class="row">

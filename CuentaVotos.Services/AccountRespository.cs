@@ -1,13 +1,8 @@
-﻿using CuentaVotos.Entities.Account;
-using CuentaVotos.Core.Shared;
+﻿using CuentaVotos.Core.Shared;
 using CuentaVotos.Data.LiteDb;
-using CuentaVotos.Entiies.Shared;
+using CuentaVotos.Entities.Shared;
+using CuentaVotos.Entities.Account;
 using CuentaVotos.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CuentaVotos.Services
 {
@@ -20,12 +15,12 @@ namespace CuentaVotos.Services
             _context = context;
         }
 
-        public ResultBase ChangePassword(UserChangePassword userChangePassword)
+        public ModelResult<string> ChangePassword(string userCode, UserChangePassword userChangePassword)
         {
-            var entity = _context.Users.FirstOrDefault(x => x.Id == userChangePassword.UserId);
+            var entity = _context.Users.FirstOrDefault(x => x.Codigo == Guid.Parse(userCode));
             if (entity == null)
             {
-                return new ModelResult<UserProfile>
+                return new ModelResult<string>
                 {
                     IsSuccess = false,
                     Message = "Usuario no existe"
@@ -34,7 +29,7 @@ namespace CuentaVotos.Services
 
             if (entity.PasswordHash != userChangePassword.CurrentPassword.MD5Encrypt())
             {
-                return new ModelResult<UserProfile>
+                return new ModelResult<string>
                 {
                     IsSuccess = false,
                     Message = "La contraseña actual no es válida"
@@ -45,10 +40,10 @@ namespace CuentaVotos.Services
             {
                 entity.PasswordHash = userChangePassword.NewPassword.MD5Encrypt();
                 var isSuccess = _context.Users.Update(entity);
-                return new ResultBase
+                return new ModelResult<string>
                 {
                     IsSuccess = isSuccess,
-                    Message = isSuccess? "Contraseña modificada correctamente": "Error al cambiar la contraseña",
+                    Message = isSuccess ? "Contraseña modificada correctamente" : "Error al cambiar la contraseña",
                     Code = 1,
                     Count = 1,
                 };
@@ -56,7 +51,7 @@ namespace CuentaVotos.Services
             catch (Exception ex)
             {
 
-                return new ResultBase
+                return new ModelResult<string>
                 {
                     IsSuccess = false,
                     Message = "Error al actualizar los datos",
@@ -66,11 +61,10 @@ namespace CuentaVotos.Services
 
         }
 
-
         public ModelResult<UserProfile> Login(UserLogin userLogin)
         {
-            var entity = _context.Users.FirstOrDefault(x=>x.Email == userLogin.Email);
-            if (entity==null)
+            var entity = _context.Users.FirstOrDefault(x => x.Email == userLogin.Email);
+            if (entity == null)
             {
                 return new ModelResult<UserProfile>
                 {
@@ -93,13 +87,12 @@ namespace CuentaVotos.Services
                 return new ModelResult<UserProfile>
                 {
                     IsSuccess = false,
-                    Message = "Contraseña no válida"
+                    Message = "Contraseña no válida. Si olvidó su clave, solicite un restablecimiento al administrador"
                 };
             }
 
             return Profile(entity.Codigo.ToString());
         }
-
 
         public ModelResult<UserProfile> Profile(string userCode)
         {
@@ -115,7 +108,7 @@ namespace CuentaVotos.Services
 
             try
             {
-                
+
                 return new ModelResult<UserProfile>
                 {
                     IsSuccess = true,
@@ -194,7 +187,7 @@ namespace CuentaVotos.Services
             {
                 return new ModelResult<UserProfile>
                 {
-                    IsSuccess = true,
+                    IsSuccess = false,
                     Message = "Error al registrar el usuario",
                     Code = 0,
                     Count = 0,
@@ -203,6 +196,45 @@ namespace CuentaVotos.Services
             }
         }
 
+        public ModelResult<string> UpdateProfile(string userCode, UserProfile profile)
+        {
+            var entity = _context.Users.FirstOrDefault(x => x.Codigo == Guid.Parse(userCode));
+            if (entity == null)
+            {
+                return new ModelResult<string>
+                {
+                    IsSuccess = false,
+                    Message = $"Usuario no encontrado"
+                };
+            }
 
+            try
+            {
+                entity.FirstName = profile.FirstName;
+                entity.LastName = profile.LastName;
+                entity.Email = profile.Email;
+                entity.PhoneNumber = profile.PhoneNumber ?? "";
+
+                _context.Users.Update(entity);
+                return new ModelResult<string>
+                {
+                    IsSuccess = true,
+                    Message = "Datos del usuario actualizados correctamente",
+                    Code = 1,
+                    Count = 1,
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ModelResult<string>
+                {
+                    IsSuccess = false,
+                    Message = "Error al actualizar los datos del usuario",
+                    Code = 0,
+                    Count = 0,
+                    Exception = ex
+                };
+            }
+        }
     }
 }

@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.21" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.21" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.32.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.32.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\CuentaVostos.Entities\CuentaVostos.Entities.csproj" />
+    <ProjectReference Include="..\..\CuentaVotos.Core\CuentaVotos.Core.csproj" />
+    <ProjectReference Include="..\..\CuentaVotos.Data.LiteDb\CuentaVotos.Data.LiteDb.csproj" />
+    <ProjectReference Include="..\..\CuentaVotos.Repository\CuentaVotos.Repository.csproj" />
+    <ProjectReference Include="..\..\CuentaVotos.Services\CuentaVotos.Services.csproj" />
+    <ProjectReference Include="..\Client\Elecciones.Client.csproj" />
+  </ItemGroup>
+
+
+</Project>

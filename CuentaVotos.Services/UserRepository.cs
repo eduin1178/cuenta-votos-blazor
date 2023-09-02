@@ -1,6 +1,6 @@
 ﻿using CuentaVotos.Core.Shared;
 using CuentaVotos.Data.LiteDb;
-using CuentaVotos.Entiies.Shared;
+using CuentaVotos.Entities.Shared;
 using CuentaVotos.Entities.Account;
 using CuentaVotos.Repository;
 
@@ -51,12 +51,12 @@ namespace CuentaVotos.Services
 
             return result;
         }
-        public ResultBase ChangeRol(int userId, int newRole)
+        public ModelResult<string> ChangeRol(int userId, int newRole)
         {
             var entity = _context.Users.FirstOrDefault(x => x.Id == userId);
             if (entity == null)
             {
-                return new ResultBase
+                return new ModelResult<string>
                 {
                     IsSuccess = false,
                     Message = "Usuario no encontrado"
@@ -70,7 +70,7 @@ namespace CuentaVotos.Services
                 var res = _context.Users.Update(entity);
                 if (res)
                 {
-                    return new ResultBase
+                    return new ModelResult<string>
                     {
                         IsSuccess = true,
                         Message = "Rol del usuario modificado correctamente",
@@ -78,22 +78,22 @@ namespace CuentaVotos.Services
                 }
                 else
                 {
-                    return new ResultBase { IsSuccess = false, Message = "Error al modificiar el rol del usuario" };
+                    return new ModelResult<string> { IsSuccess = false, Message = "Error al modificiar el rol del usuario" };
                 }
             }
             catch (Exception ex)
             {
 
-                return new ResultBase { IsSuccess = false, Message = "Error al modificiar el rol del usuario", Exception = ex };
+                return new ModelResult<string> { IsSuccess = false, Message = "Error al modificiar el rol del usuario", Exception = ex };
             }
 
         }
-        public ResultBase ChangeState(int userId, int newState)
+        public ModelResult<string> ChangeState(int userId, int newState)
         {
             var entity = _context.Users.FirstOrDefault(x => x.Id == userId);
             if (entity == null)
             {
-                return new ResultBase
+                return new ModelResult<string>
                 {
                     IsSuccess = false,
                     Message = "Usuario no encontrado"
@@ -107,7 +107,7 @@ namespace CuentaVotos.Services
                 var res = _context.Users.Update(entity);
                 if (res)
                 {
-                    return new ResultBase
+                    return new ModelResult<string>
                     {
                         IsSuccess = true,
                         Message = "Estado del usuario modificado correctamente",
@@ -115,35 +115,35 @@ namespace CuentaVotos.Services
                 }
                 else
                 {
-                    return new ResultBase { IsSuccess = false, Message = "Error al modificiar el estado del usuario" };
+                    return new ModelResult<string> { IsSuccess = false, Message = "Error al modificiar el estado del usuario" };
                 }
             }
             catch (Exception ex)
             {
 
-                return new ResultBase { IsSuccess = false, Message = "Error al modificiar el estado del usuario", Exception = ex };
+                return new ModelResult<string> { IsSuccess = false, Message = "Error al modificiar el estado del usuario", Exception = ex };
             }
         }
-        public ResultBase RestorePassword(int userId, string newPassword)
+        public ModelResult<string> RestorePassword(UserRestorePassword model)
         {
-            var entity = _context.Users.FirstOrDefault(x => x.Id == userId);
+            var entity = _context.Users.FirstOrDefault(x => x.Id == model.UserId);
             if (entity == null)
             {
-                return new ResultBase
+                return new ModelResult<string>
                 {
                     IsSuccess = false,
                     Message = "Usuario no encontrado"
                 };
             }
 
-            entity.PasswordHash = newPassword.MD5Encrypt();
+            entity.PasswordHash = model.NewPassword.MD5Encrypt();
 
             try
             {
                 var res = _context.Users.Update(entity);
                 if (res)
                 {
-                    return new ResultBase
+                    return new ModelResult<string>
                     {
                         IsSuccess = true,
                         Message = "Contraseña del usuario restablecida correctamente",
@@ -151,33 +151,33 @@ namespace CuentaVotos.Services
                 }
                 else
                 {
-                    return new ResultBase { IsSuccess = false, Message = "Error al restablecer la contraseña del usuario" };
+                    return new ModelResult<string> { IsSuccess = false, Message = "Error al restablecer la contraseña del usuario" };
                 }
             }
             catch (Exception ex)
             {
 
-                return new ResultBase { IsSuccess = false, Message = "Error al restablecer la contraseña del usuario", Exception = ex };
+                return new ModelResult<string> { IsSuccess = false, Message = "Error al restablecer la contraseña del usuario", Exception = ex };
             }
 
         }
-        public ResultBase Delete(int userId)
+        public ModelResult<string> Delete(int userId)
         {
             try
             {
                 var res = _context.Users.Delete(userId);
                 if (res)
                 {
-                    return new ResultBase { IsSuccess = true, Message = "Usuario eliminado correctamente" };
+                    return new ModelResult<string> { IsSuccess = true, Message = "Usuario eliminado correctamente" };
                 }
                 else
                 {
-                    return new ResultBase { IsSuccess = false, Message = "Error al elimimar el usuario " };
+                    return new ModelResult<string> { IsSuccess = false, Message = "Error al elimimar el usuario " };
                 }
             }
             catch (Exception ex)
             {
-                return new ResultBase { IsSuccess = false, Message = "Error al elimimar el usuario ", Exception = ex };
+                return new ModelResult<string> { IsSuccess = false, Message = "Error al elimimar el usuario ", Exception = ex };
             }
         }
 

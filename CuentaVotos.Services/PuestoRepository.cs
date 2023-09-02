@@ -1,6 +1,6 @@
 ﻿using CuentaVostos.Entities.Puestos;
 using CuentaVotos.Data.LiteDb;
-using CuentaVotos.Entiies.Shared;
+using CuentaVotos.Entities.Shared;
 using CuentaVotos.Repository;
 using System;
 using System.Collections.Generic;
@@ -96,9 +96,9 @@ namespace CuentaVotos.Services
             return res;
         }
 
-        public ResultBase Create(int number, string name)
+        public ModelResult<string> Create(int number, string name)
         {
-            var result = new ResultBase();
+            var result = new ModelResult<string>();
 
             var entity = new Puesto
             {
@@ -122,9 +122,9 @@ namespace CuentaVotos.Services
 
             return result;
         }
-        public ResultBase Update(int id, int number, string name)
+        public ModelResult<string> Update(int id, int number, string name)
         {
-            var result = new ResultBase();
+            var result = new ModelResult<string>();
 
             try
             {
@@ -155,9 +155,9 @@ namespace CuentaVotos.Services
 
             return result;
         }
-        public ResultBase Delete(int puestoId)
+        public ModelResult<string> Delete(int puestoId)
         {
-            var result = new ResultBase();
+            var result = new ModelResult<string>();
 
             try
             {

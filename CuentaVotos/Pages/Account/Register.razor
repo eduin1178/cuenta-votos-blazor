@@ -5,77 +5,82 @@
 @inject IToaster _toaster
 @inject NavigationManager _navigate
 
-<div class="container">
-    <EditForm Model="Model.UserCreate" OnValidSubmit="CreateUser">
-        <DataAnnotationsValidator />
-        <div class="offset-lg-3 col-lg-6">
+<EditForm Model="Model.UserCreate" OnValidSubmit="CreateUser">
+    <DataAnnotationsValidator />
+    <div class="offset-lg-3 col-lg-6">
 
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">
-                        Registrar Usuario
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    Registrar Usuario
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mt-2">
+                    <div class="col">
+                        <span>Nombres</span>
+                        <input type="text" class="form-control"
+                               placeholder="Nombres"
+                               @bind="Model.UserCreate.FirstName" />
+                        <ValidationMessage For="(()=>Model.UserCreate.FirstName)" />
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="row mt-2">
-                        <div class="col">
-                            <span>Nombres</span>
-                            <input type="text" class="form-control"
-                                   placeholder="Nombres"
-                                   @bind="Model.UserCreate.FirstName" />
-                            <ValidationMessage For="(()=>Model.UserCreate.FirstName)" />
-                        </div>
-                    </div>
 
-                    <div class="row mt-2">
-                        <div class="col">
-                            <span>Apellidos</span>
-                            <input type="text" class="form-control"
-                                   placeholder="Apellidos"
-                                   @bind="Model.UserCreate.LastName" />
-                            <ValidationMessage For="(()=>Model.UserCreate.LastName)" />
-                        </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <span>Apellidos</span>
+                        <input type="text" class="form-control"
+                               placeholder="Apellidos"
+                               @bind="Model.UserCreate.LastName" />
+                        <ValidationMessage For="(()=>Model.UserCreate.LastName)" />
                     </div>
-                    <div class="row mt-2">
-                        <div class="col">
-                            <span>Email</span>
-                            <input type="email" class="form-control"
-                                   placeholder="Correo electrónico"
-                                   @bind="Model.UserCreate.Email" />
-                            <ValidationMessage For="(()=>Model.UserCreate.Email)" />
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col">
-                            <span>Teléfono</span>
-                            <input type="tel" class="form-control"
-                                   placeholder="Teléfono"
-                                   @bind="Model.UserCreate.PhoneNumber" />
-                            <ValidationMessage For="(()=>Model.UserCreate.PhoneNumber)" />
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col">
-                            <span>Contraseña</span>
-                            <input type="password" class="form-control"
-                                   placeholder="Contraseña"
-                                   @bind="Model.UserCreate.Password" />
-                            <ValidationMessage For="(()=>Model.UserCreate.Password)" />
-                        </div>
-                    </div>
-
                 </div>
-                <div class="card-footer">
-                    <div class="row">
-                        <div class="col">
-                            <button type="submit" class="btn btn-primary">Registrarme</button>
-                        </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <span>Email</span>
+                        <input type="email" class="form-control"
+                               placeholder="Correo electrónico"
+                               @bind="Model.UserCreate.Email" />
+                        <ValidationMessage For="(()=>Model.UserCreate.Email)" />
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <span>Teléfono</span>
+                        <input type="tel" class="form-control"
+                               placeholder="Teléfono"
+                               @bind="Model.UserCreate.PhoneNumber" />
+                        <ValidationMessage For="(()=>Model.UserCreate.PhoneNumber)" />
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <span>Contraseña</span>
+                        <input type="password" class="form-control"
+                               placeholder="Contraseña"
+                               @bind="Model.UserCreate.Password" />
+                        <ValidationMessage For="(()=>Model.UserCreate.Password)" />
+                    </div>
+                </div>
+
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="oi oi-person"></i>
+                            Registrar</button>
+                        <a class="btn btn-secondary float-end"
+                        href="/Account/Login">
+                            <i class="oi oi-key"></i> Iniciar session
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
-    </EditForm>
-</div>
+    </div>
+</EditForm>
+
 
 @code {
 

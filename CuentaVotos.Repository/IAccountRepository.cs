@@ -1,5 +1,5 @@
 ﻿using CuentaVotos.Entities.Account;
-using CuentaVotos.Entiies.Shared;
+using CuentaVotos.Entities.Shared;
 
 namespace CuentaVotos.Repository
 {
@@ -8,6 +8,7 @@ namespace CuentaVotos.Repository
         ModelResult<UserProfile> Login(UserLogin userLogin);
         ModelResult<UserProfile> Register(UserCreate user);
         ModelResult<UserProfile> Profile(string userCode);
-        ResultBase ChangePassword(UserChangePassword userChangePassword);
+        ModelResult<string> ChangePassword(string userCode, UserChangePassword userChangePassword);
+        ModelResult<string> UpdateProfile(string userCode, UserProfile profile);
     }
 }
