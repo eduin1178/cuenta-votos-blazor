@@ -1,8 +1,6 @@
 using BlazorDownloadFile;
 using Blazored.LocalStorage;
 using CurrieTechnologies.Razor.SweetAlert2;
-using Elecciones.Client;
-using Elecciones.Client.Api;
 using Elecciones.Client.Application;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;

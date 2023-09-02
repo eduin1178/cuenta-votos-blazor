@@ -153,6 +153,7 @@ namespace CuentaVotos.Services
                     Message = $"El email {user.Email} ya se encuentra registrado"
                 };
             }
+            var countUsers = _context.Users.FirstOrDefault(x=>x.Id == 1);
 
             try
             {
@@ -163,6 +164,8 @@ namespace CuentaVotos.Services
                     LastName = user.LastName,
                     PhoneNumber = user.PhoneNumber,
                     PasswordHash = user.Password.MD5Encrypt(),
+                    StateId = countUsers==null?1:0,
+                    RoleId =  countUsers==null?0:1,
                 };
                 _context.Users.Add(entity);
 

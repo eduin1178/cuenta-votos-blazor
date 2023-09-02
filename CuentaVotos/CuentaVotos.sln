@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CuentaVotos.Core", "..\Cuen
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CuentaVotos.Services", "..\CuentaVotos.Services\CuentaVotos.Services.csproj", "{E4454302-41E0-4D91-BD26-84C7502527B2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CuentaVostos.Entities", "..\CuentaVostos.Entities\CuentaVostos.Entities.csproj", "{A8957558-641D-4F1D-B7D5-FE0EAB158ABD}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CuentaVotos.Data.LiteDb", "..\CuentaVotos.Data.LiteDb\CuentaVotos.Data.LiteDb.csproj", "{75680435-9FD7-4BA4-974D-CB3A6C7C17B1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CuentaVotos.Repository", "..\CuentaVotos.Repository\CuentaVotos.Repository.csproj", "{F89D9258-DE3C-4EC6-A3F0-00310E7F26F0}"
@@ -16,6 +14,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elecciones.Server", "..\Elecciones\Server\Elecciones.Server.csproj", "{7F18A785-D60E-477B-BDEF-CBF8580F8FAF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elecciones.Client", "..\Elecciones\Client\Elecciones.Client.csproj", "{1EAA1078-3C61-43D2-8BED-38386D0B0745}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CuentaVotos.Entities", "..\CuentaVotos.Entities\CuentaVotos.Entities.csproj", "{A0206D0E-6FE4-4168-8D3A-5D0904252517}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,10 +31,6 @@ Global
 		{E4454302-41E0-4D91-BD26-84C7502527B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4454302-41E0-4D91-BD26-84C7502527B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E4454302-41E0-4D91-BD26-84C7502527B2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A8957558-641D-4F1D-B7D5-FE0EAB158ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A8957558-641D-4F1D-B7D5-FE0EAB158ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A8957558-641D-4F1D-B7D5-FE0EAB158ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A8957558-641D-4F1D-B7D5-FE0EAB158ABD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{75680435-9FD7-4BA4-974D-CB3A6C7C17B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{75680435-9FD7-4BA4-974D-CB3A6C7C17B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75680435-9FD7-4BA4-974D-CB3A6C7C17B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -51,6 +47,10 @@ Global
 		{1EAA1078-3C61-43D2-8BED-38386D0B0745}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EAA1078-3C61-43D2-8BED-38386D0B0745}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EAA1078-3C61-43D2-8BED-38386D0B0745}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0206D0E-6FE4-4168-8D3A-5D0904252517}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0206D0E-6FE4-4168-8D3A-5D0904252517}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0206D0E-6FE4-4168-8D3A-5D0904252517}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0206D0E-6FE4-4168-8D3A-5D0904252517}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

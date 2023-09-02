@@ -19,12 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CuentaVostos.Entities\CuentaVostos.Entities.csproj" />
-    <ProjectReference Include="..\..\CuentaVotos.Core\CuentaVotos.Core.csproj" />
+    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
   </ItemGroup>
 
   <ItemGroup>
-    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+    <ProjectReference Include="..\..\CuentaVotos.Entities\CuentaVotos.Entities.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,152 @@
+﻿@page "/Admin/Puestos"
+
+<Card>
+    <Header>
+        Puesto de votación
+    </Header>
+    <Body>
+        <button class="btn btn-primary mb-3" @onclick="ShowModal">Agregar</button>
+
+        @if (ListaPuestos == null)
+        {
+            <p>Cargando...</p>
+        }
+        else
+        {
+            if (ListaPuestos.Count == 0)
+            {
+                <p>No hay puestos registrados</p>
+            }
+            else
+            {
+                <div class="row">
+
+                    @foreach (var puesto in ListaPuestos)
+                    {
+                        <div class="col-4 mb-2">
+                            <Card>
+                                <Header>
+                                    <button class="btn btn-outline-danger btn-sm float-end"
+                                            title="Eliminar"
+                                    @onclick="()=>EliminarPuesto(puesto.Id)">
+                                        <i class="oi oi-trash"></i>
+                                    </button>
+                                    
+                                    @puesto.Name
+                                </Header>
+                                <Body>
+                                    <p>Mesas: @puesto.Mesas</p>
+                                    <div class="btn-group">
+                                        
+                                    </div>
+                                </Body>
+                            </Card>
+
+                        </div>
+                    }
+                </div>
+
+            }
+        }
+    </Body>
+</Card>
+
+
+<Modal Title="Agregar puesto" @ref="modal">
+    <Content>
+        <EditForm Model="CreaPuesto" OnValidSubmit="AgregarPuesto">
+            <div class="row">
+                <div class="col">
+                    <span>Número</span>
+                    <input type="number" class="form-control" @bind="CreaPuesto.Number" />
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <span>Nombre</span>
+                    <input type="text" class="form-control" @bind="CreaPuesto.Name" placeholder="Nombre de la mesa" />
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <span>Cantidad de meseas</span>
+                    <input type="number" class="form-control" @bind="CreaPuesto.TableCount" />
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col">
+                    <button type="submit" class="btn btn-primary"> <i class="oi oi-check"></i> Agregar</button>
+                </div>
+            </div>
+        </EditForm>
+    </Content>
+</Modal>
+@inject ApiClient _client
+@inject IToaster _toaster
+
+@code {
+    public List<PuestoModel>? ListaPuestos { get; set; }
+    public PuestoCreate CreaPuesto { get; set; } = new PuestoCreate();
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    protected async Task Load()
+    {
+        var res = await _client.GetAsync<List<PuestoModel>>("api/Puestos");
+        if (res.IsSuccess)
+        {
+            ListaPuestos = res.Model;
+            int numero = ListaPuestos.Count == 0 ? 1 : ListaPuestos.Max(x => x.Number) + 1;
+            CreaPuesto = new PuestoCreate
+                {
+                    Number = numero,
+                    Name = $"Puesto {numero}",
+                    TableCount = 5,
+                };
+        }
+        else
+        {
+            ListaPuestos = new List<PuestoModel>();
+            _toaster.Error(res.Message);
+        }
+    }
+
+    Modal modal = new Modal();
+    protected async Task ShowModal()
+    {
+        await modal.OpenModal();
+    }
+
+    protected async Task AgregarPuesto()
+    {
+        var res = await _client.PostAsync<string, PuestoCreate>("api/Puestos", CreaPuesto);
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+
+            await Load();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+
+        await modal.CloseModal();
+    }
+
+    protected async Task EliminarPuesto(int puestoId)
+    {
+        var res = await _client.DeleteAsync<string>($"api/Puestos/{puestoId}");
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+            await Load();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+    }
+}

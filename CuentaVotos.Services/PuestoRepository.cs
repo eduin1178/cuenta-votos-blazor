@@ -1,4 +1,4 @@
-﻿using CuentaVostos.Entities.Puestos;
+﻿using CuentaVotos.Entities.Puestos;
 using CuentaVotos.Data.LiteDb;
 using CuentaVotos.Entities.Shared;
 using CuentaVotos.Repository;
@@ -27,6 +27,18 @@ namespace CuentaVotos.Services
 
             try
             {
+
+                var queryMesas = _context.Mesas.AsEnumerable()
+                        .Select(y => new MesaModel
+                        {
+                            Id = y.Id,
+                            Code = y.Code,
+                            Name = y.Name,
+                            Number = y.Number,
+                            PuestoId = y.PuestoId,
+                            UserId = y.UserId,
+                        }).ToList();
+
                 var query = _context.Puestos.AsEnumerable()
                     .Select(x => new PuestoModel
                     {
@@ -34,6 +46,7 @@ namespace CuentaVotos.Services
                         Number = x.Number,
                         Code = x.Code,
                         Name = x.Name,
+                        ListaMesas = queryMesas.Where(y=>y.PuestoId == x.Id).ToList(),
                     }).ToList();
 
                 res.IsSuccess = true;
@@ -96,22 +109,39 @@ namespace CuentaVotos.Services
             return res;
         }
 
-        public ModelResult<string> Create(int number, string name)
+        public ModelResult<string> Create(PuestoCreate model)
         {
             var result = new ModelResult<string>();
 
             var entity = new Puesto
             {
-                Number = number,
-                Name = name
+                Code = Guid.NewGuid().ToString(),
+                Number = model.Number,
+                Name = model.Name
             };
 
             try
             {
                 _context.Puestos.Add(entity);
+
+
+                for (int i = 0; i < model.TableCount; i++)
+                {
+                    var mesa = new Mesa
+                    {
+                        Name = $"Mesa {i + 1}",
+                        Number = i + 1,
+                        PuestoId = entity.Id,
+                        Code = Guid.NewGuid().ToString(),
+                    };
+
+                    _context.Mesas.Add(mesa);
+                }
+
                 result.IsSuccess = true;
                 result.Message = "Puesto creado correctamente";
                 result.Code = entity.Id;
+
             }
             catch (Exception ex)
             {
@@ -122,14 +152,14 @@ namespace CuentaVotos.Services
 
             return result;
         }
-        public ModelResult<string> Update(int id, int number, string name)
+        public ModelResult<string> Update(int puestoId, Puesto model)
         {
             var result = new ModelResult<string>();
 
             try
             {
 
-                var entity = _context.Puestos.FirstOrDefault(x=>x.Id == id);
+                var entity = _context.Puestos.FirstOrDefault(x => x.Id == puestoId);
                 if (entity == null)
                 {
                     result.IsSuccess = false;
@@ -138,10 +168,12 @@ namespace CuentaVotos.Services
                     return result;
                 }
 
-                entity.Number = number;
-                entity.Name = name;
+                entity.Number = model.Number;
+                entity.Name = model.Name;
 
                 _context.Puestos.Update(entity);
+
+
 
                 result.IsSuccess = true;
                 result.Message = "Datos del puesto de votación modificados correctamente";
@@ -184,6 +216,76 @@ namespace CuentaVotos.Services
             return result;
         }
 
+        public ModelResult<PuestoModel> AddTable(int puestoId, Mesa model)
+        {
+            var puesto = _context.Puestos.FirstOrDefault(x => x.Id == puestoId);
+            if (puesto == null)
+            {
+                return new ModelResult<PuestoModel>
+                {
+                    IsSuccess = false,
+                    Message = "Puesto no encontrado",
+                };
+            }
 
+            var result = new ModelResult<PuestoModel>();
+
+            try
+            {
+                var entity = new Mesa
+                {
+                    PuestoId = puestoId,
+                    Number = model.Number,
+                    Name = model.Name,
+                    Code = Guid.NewGuid().ToString(),
+                    UserId = model.UserId
+                };
+
+                _context.Mesas.Add(entity);
+
+                result.IsSuccess = true;
+                result.Message = "Mesa agregada correctamente";
+            }
+            catch (Exception ex)
+            {
+                result.IsSuccess = false;
+                result.Message = "Error al agregar la mesa";
+                result.Exception = ex;
+            }
+
+            return result;
+
+        }
+
+        public ModelResult<PuestoModel> RemoveTable(int puestoId, int mesaId)
+        {
+            var entity = _context.Mesas.FirstOrDefault(x => x.Id == mesaId);
+            if (entity == null)
+            {
+                return new ModelResult<PuestoModel>
+                {
+                    IsSuccess = false,
+                    Message = "Mesa no encontrada",
+                };
+            }
+
+            var result = new ModelResult<PuestoModel>();
+
+            try
+            {
+                _context.Mesas.Delete(mesaId);
+
+                result.IsSuccess = true;
+                result.Message = "Mesa eliminada correctamente";
+            }
+            catch (Exception ex)
+            {
+                result.IsSuccess = false;
+                result.Message = "Error al eliminar la mesa";
+                result.Exception = ex;
+            }
+
+            return result;
+        }
     }
 }

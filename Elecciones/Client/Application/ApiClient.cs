@@ -1,15 +1,14 @@
 ﻿
 using CuentaVotos.Entities.Shared;
 using System.Net.Http.Json;
-using System.Runtime.Serialization.Json;
 using System.Text.Json;
 
-namespace Elecciones.Client.Api
+namespace Elecciones.Client.Application
 {
     public class ApiClient
     {
         public HttpClient Client { get; set; }
-        private readonly JsonSerializerOptions jsonOptions = new JsonSerializerOptions{ PropertyNameCaseInsensitive = true};
+        private readonly JsonSerializerOptions jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         public ApiClient(IConfiguration config, HttpClient httpClient)
         {
             Client = httpClient;
@@ -40,7 +39,7 @@ namespace Elecciones.Client.Api
             }
 
             var content = await response.Content.ReadAsStringAsync();
-            var res = JsonSerializer.Deserialize<ModelResult<T>>( content,jsonOptions); 
+            var res = JsonSerializer.Deserialize<ModelResult<T>>(content, jsonOptions);
             return res;
         }
 

@@ -4,15 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CuentaVostos.Entities.Puestos
+namespace CuentaVotos.Entities.Puestos
 {
-    public class Mesa
+    public class Puesto
     {
         public int Id { get; set; }
-        public Guid Code { get; set; } = Guid.NewGuid();
+        public string Code { get; set; } = Guid.NewGuid().ToString();
         public int Number { get; set; }
         public string Name { get; set; }
-        public int PuestoId { get; set; }
-        public int? UserId { get; set; }
+        
     }
 }

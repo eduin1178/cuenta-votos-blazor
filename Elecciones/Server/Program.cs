@@ -1,9 +1,7 @@
-using CuentaVotos.Core.Account;
 using CuentaVotos.Data.LiteDb;
 using CuentaVotos.Repository;
 using CuentaVotos.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
@@ -16,11 +14,8 @@ namespace Elecciones
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
-
 
             var allowedOrigins = builder.Configuration.GetSection("Origins").Get<string[]>();
 
@@ -65,10 +60,11 @@ namespace Elecciones
             {
             }
 
-            builder.Services.AddScoped(x => new LiteDbContext(pathDb));
+            builder.Services.AddSingleton(x => new LiteDbContext(pathDb));
 
             builder.Services.AddTransient<IAccountRepository, AccountRespository>();
             builder.Services.AddTransient<IUserRespository, UserRepository>();
+            builder.Services.AddTransient<IPuestoRepository, PuestoRepository>();
 
             var app = builder.Build();
 

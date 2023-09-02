@@ -1,4 +1,4 @@
-﻿using CuentaVostos.Entities.Puestos;
+﻿using CuentaVotos.Entities.Puestos;
 using CuentaVotos.Entities.Account;
 using System.Xml.Linq;
 

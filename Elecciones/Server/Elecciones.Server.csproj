@@ -14,9 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CuentaVostos.Entities\CuentaVostos.Entities.csproj" />
     <ProjectReference Include="..\..\CuentaVotos.Core\CuentaVotos.Core.csproj" />
     <ProjectReference Include="..\..\CuentaVotos.Data.LiteDb\CuentaVotos.Data.LiteDb.csproj" />
+    <ProjectReference Include="..\..\CuentaVotos.Entities\CuentaVotos.Entities.csproj" />
     <ProjectReference Include="..\..\CuentaVotos.Repository\CuentaVotos.Repository.csproj" />
     <ProjectReference Include="..\..\CuentaVotos.Services\CuentaVotos.Services.csproj" />
     <ProjectReference Include="..\Client\Elecciones.Client.csproj" />

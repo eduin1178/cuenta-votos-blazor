@@ -1,4 +1,5 @@
-﻿using LiteDB;
+﻿using CuentaVotos.Entities.Puestos;
+using LiteDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -115,5 +116,6 @@ namespace CuentaVotos.Data.LiteDb
         /// <param name="expIndices"></param>
         public void ConfigureIndices<K>(string expression, Expression<Func<T, K>> expIndices,  bool unique = false) =>
                 _db.GetCollection<T>().EnsureIndex(expression, expIndices, unique);
+            
     }
 }

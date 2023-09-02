@@ -9,7 +9,7 @@ namespace CuentaVotos.Entities.Shared
       
     public class ModelResult<TModel>
     {
-        public TModel Model { get; set; }
+        public TModel? Model { get; set; }
         public bool IsSuccess { get; set; }
         public string Message { get; set; } = null!;
         public int Code { get; set; }

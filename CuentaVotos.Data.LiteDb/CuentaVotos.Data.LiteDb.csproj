@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CuentaVostos.Entities\CuentaVostos.Entities.csproj" />
+    <ProjectReference Include="..\CuentaVotos.Entities\CuentaVotos.Entities.csproj" />
     <ProjectReference Include="..\CuentaVotos.Repository\CuentaVotos.Repository.csproj" />
   </ItemGroup>
 
