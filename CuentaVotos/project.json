@@ -1,0 +1,7 @@
+{
+  "commands": {
+    "run": "run server.urls=http://localhost:8082",
+    "web": "Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.Kestrel --server.urls http://localhost:8082",
+    "weblistener": "Microsoft.AspNet.Hosting --server WebListener --server.urls http://localhost:8082"
+  }
+}

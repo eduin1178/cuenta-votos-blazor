@@ -1,0 +1,103 @@
+﻿@page "/Account/Register"
+
+@inject ApiClient _client
+@inject SweetAlertService _swal
+@inject IToaster _toaster
+@inject NavigationManager _navigate
+
+<EditForm Model="Model" OnValidSubmit="CreateUser">
+    <DataAnnotationsValidator />
+    <div class="offset-lg-3 col-lg-6">
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    Registrar Usuario
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mt-2">
+                    <div class="col">
+                        <span>Nombres</span>
+                        <input type="text" class="form-control"
+                               placeholder="Nombres"
+                               @bind="Model.FirstName" />
+                        <ValidationMessage For="(()=>Model.FirstName)" />
+                    </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col">
+                        <span>Apellidos</span>
+                        <input type="text" class="form-control"
+                               placeholder="Apellidos"
+                               @bind="Model.LastName" />
+                        <ValidationMessage For="(()=>Model.LastName)" />
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <span>Email</span>
+                        <input type="email" class="form-control"
+                               placeholder="Correo electrónico"
+                               @bind="Model.Email" />
+                        <ValidationMessage For="(()=>Model.Email)" />
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <span>Teléfono</span>
+                        <input type="tel" class="form-control"
+                               placeholder="Teléfono"
+                               @bind="Model.PhoneNumber" />
+                        <ValidationMessage For="(()=>Model.PhoneNumber)" />
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <span>Contraseña</span>
+                        <input type="password" class="form-control"
+                               placeholder="Contraseña"
+                               @bind="Model.Password" />
+                        <ValidationMessage For="(()=>Model.Password)" />
+                    </div>
+                </div>
+
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="oi oi-person"></i>
+                            Registrar</button>
+                        <a class="btn btn-secondary float-end"
+                        href="/Account/Login">
+                            <i class="oi oi-key"></i> Iniciar session
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+
+@code {
+    public UserCreate Model { get; set; } = new UserCreate();
+
+    protected async Task CreateUser()
+    {
+        var url = "api/Account/Register";
+        var res = await _client.PostAsync<ModelResult<UserProfile>, UserCreate>(url, Model);
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+            _navigate.NavigateTo("/Account/Login");
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+    }
+
+}

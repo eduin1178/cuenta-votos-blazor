@@ -1,0 +1,62 @@
+﻿<AuthorizeView>
+    <Authorized>
+        <div class="nav  d-flex align-items-center justify-content-center align-content-end">
+            <apan class="oi oi-person"></apan>
+            <a href="/Account/Profile" class="nav-link">
+                <span class="text-dark nav-item"
+                      title="@context.User.Claims.FirstOrDefault(x=>x.Type==ClaimTypes.Email)?.Value">
+                    @context.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value
+                </span>
+            </a>
+           
+            <a @onclick="Logout" href="javascript:void(0);" class="nav-link text-dark">
+                Salir
+            </a>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <nav class="nav">
+            <a href="/Account/Login" class="nav-link">
+                <div class="text-dark">
+                    <span class="oi oi-key"></span>
+                    Login
+                </div>
+            </a>
+        </nav>
+    </NotAuthorized>
+    <Authorizing>
+        <p>Autoirizando....</p>
+    </Authorizing>
+</AuthorizeView>
+
+@inject NavigationManager _navigation
+@inject SweetAlertService swal
+@inject AuthenticationStateProvider _authProvider
+@inject ProtectedLocalStorage _localStorage
+
+@code {
+
+
+    protected async Task Logout()
+    {
+        var confirm = await swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "¿Seguro que desea cerrar sesión?",
+                ShowConfirmButton = true,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+            });
+
+        if (!confirm.IsConfirmed)
+        {
+            return;
+        }
+
+        await _localStorage.DeleteAsync("CuentaVotosAuth");
+        await _localStorage.DeleteAsync("CuentaVotosProfile");
+        _navigation.NavigateTo("Account/Login", true);
+
+        await _authProvider.GetAuthenticationStateAsync();
+    }
+}

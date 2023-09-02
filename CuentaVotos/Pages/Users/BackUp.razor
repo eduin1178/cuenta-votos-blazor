@@ -1,0 +1,42 @@
+﻿@page "/Admin/BackUp"
+@attribute [Authorize(Roles ="0")]
+
+<PageTitle>BackUp</PageTitle>
+
+<Card>
+    <Header>
+        BackUp
+    </Header>
+    <Body>
+        <button class="btn btn-primary"
+                @onclick="Download">
+            Descargar Bd
+        </button>
+    </Body>
+</Card>
+@inject IBlazorDownloadFileService _download
+@inject IConfiguration _config
+@code {
+
+    public string Url { get; set; }
+    protected override void OnInitialized()
+    {
+
+        Url = _config.GetValue<string>("ConnectionStrings:AppDbContext");
+
+
+    }
+
+    protected async Task Download()
+    {
+        var fileNameToDownLoad = Path.GetFileName(Url);
+        var directory = Path.GetDirectoryName(Url);
+        var fullName = fileNameToDownLoad.Replace(".litedb", "_" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm_ss") + ".litedb");
+        File.Copy(Url, directory + fullName);
+
+        var fileStream = new FileStream(directory + fullName, FileMode.Open, FileAccess.Read);
+        await _download.DownloadFile(fullName, fileStream, "application/octet-stream");
+
+        File.Delete(fullName);
+    }
+}

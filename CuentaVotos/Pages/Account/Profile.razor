@@ -1,0 +1,163 @@
+﻿@page "/Account/Profile"
+@attribute [Authorize]
+@inject AuthenticationStateProvider _authState
+@inject IAccountRepository _accountRespository
+@inject ApiClient _client
+@inject IToaster _toaster
+
+<div class="container">
+
+<Card>
+    <Header>
+        Perfil del Usuario
+    </Header>
+    <Body>
+        @if (Model != null)
+        {
+            <EditForm Model="Model" OnValidSubmit="Save">
+                <DataAnnotationsValidator />
+                <div class="row">
+                    <div class="col">
+                        <span>Nombres</span>
+                        <input type="text" class="form-control" @bind="Model.FirstName" />
+                        <ValidationMessage For="(()=>Model.FirstName)" />
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <span>Apellidos</span>
+                        <input type="text" class="form-control" @bind="Model.LastName" />
+                        <ValidationMessage For="(()=>Model.LastName)" />
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <span>Email</span>
+                        <span class="form-control">@Model.Email</span>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <span>Teléfono</span>
+                        <input type="text" class="form-control" @bind="Model.PhoneNumber" />
+                        <ValidationMessage For="(()=>Model.PhoneNumber)" />
+                    </div>
+                </div>
+
+                 <div class="row mt-2">
+                    <div class="col-6">
+                        <span>Estado</span>
+                        <span class="form-control">@Model.State</span>
+                    </div>
+                        <div class="col-6">
+                            <span>Rol</span>
+                            <span class="form-control">@Model.Role</span>
+                        </div>
+                </div>
+
+                <div class="row mt-2">
+                    <div class="col">
+                        <button type="submit" class="btn btn-success">
+                            <i class="oi oi-check"></i> Actualizar mis datos
+                        </button>
+                    </div>
+                </div>
+            </EditForm>
+        }
+    </Body>
+</Card>
+<Card>
+    <Header>
+        Cambio de contraseña
+    </Header>
+    <Body>
+        <EditForm Model="ModelPassword" OnValidSubmit="ChangeUserPassword">
+            <DataAnnotationsValidator />
+            <div class="row mb-2">
+                <div class="col">
+                    <span>Contraseña actual</span>
+                    <input class="form-control" type="password"
+                    placeholder="Escriba la contraseña actual"
+                    @bind="ModelPassword.CurrentPassword" />
+                    <ValidationMessage For="(()=>ModelPassword.CurrentPassword)" />
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col">
+                    <span>Nueva contraseña</span>
+                    <input class="form-control"  type="password"
+                    placeholder="Escriba la nueva contraseña"
+                    @bind="ModelPassword.NewPassword" />
+                    <ValidationMessage For="(()=>ModelPassword.NewPassword)" />
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col">
+                    <span>Confirmar contraseña</span>
+                    <input class="form-control" type="password" 
+                    placeholder="Escriba nuevamente la contraseña"
+                    @bind="ModelPassword.ConfirmPassword" />
+                    <ValidationMessage For="(()=>ModelPassword.ConfirmPassword)" />
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col">
+                  <button class="btn btn-primary" type="submit">
+                      <i class="oi oi-key"></i> Cambiar contraseña</button>
+                </div>
+            </div>
+        </EditForm>
+    </Body>
+</Card>
+
+</div>
+@code {
+
+    public UserProfile Model { get; set; } = new UserProfile();
+    public UserChangePassword ModelPassword { get; set; } = new UserChangePassword();
+    protected override async Task OnInitializedAsync()
+    {
+        var res = await _client.GetAsync<UserProfile>("api/Account/Profile");
+        if (res.IsSuccess)
+        {
+            if (res.Model != null)
+            {
+                Model = res.Model;
+            }
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+
+    }
+
+    protected async Task Save()
+    {
+        var res = await _client.PostAsync<ModelResult<UserProfile>, UserProfile>("api/Account/UpdateProfile", Model);
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+            
+        }
+    }
+
+    protected async Task ChangeUserPassword()
+    {
+        var res = await _client.PostAsync<ModelResult<string>, UserChangePassword>("api/Account/ChangePassword", ModelPassword);
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+            
+        }
+    }
+}

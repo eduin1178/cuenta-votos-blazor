@@ -1,0 +1,119 @@
+﻿@page "/Account/Login"
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject ApiClient _apiClient
+@inject ILocalStorageService _localStorage
+@inject SweetAlertService _swal
+@inject IToaster _toaster
+@inject NavigationManager _navigation
+@inject AuthenticationStateProvider _authProvider
+
+<div class="offset-lg-3 col-lg-6">
+    <EditForm Model="Model" OnValidSubmit="Autenticate">
+        <DataAnnotationsValidator />
+        <Card>
+            <Header>
+                Iniciar sesión
+            </Header>
+            <Body>
+                <div class="row">
+                    <div class="col-12">
+
+                        <span>Correo electrónico</span>
+                        <input type="email" class="form-control"
+                               placeholder="ejemplo@gmail.com"
+                               @bind="Model.Email" />
+
+                               <ValidationMessage For="(()=>Model.Email)" />
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <span>Contraseña</span>
+                        <input type="password" class="form-control"
+                               placeholder="Contraseña"
+                               @bind="Model.Password" />
+                               <ValidationMessage For="(()=>Model.Password)" />
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+
+                        <button type="submit" class="btn btn-success">
+                            <i class="oi oi-key"></i>
+                            Iniciar sesión
+                        </button>
+                        <a href="/Account/Register" class="btn btn-secondary float-end">
+                            <i class="oi oi-person"></i> Registrarme
+                        </a>
+                    </div>
+                </div>
+            </Body>
+        </Card>
+    </EditForm>
+</div>
+
+@code {
+    public UserLogin Model { get; set; } = new UserLogin();
+
+    protected async Task Autenticate()
+    {
+        var url = "api/Account/Login";
+        var res = await _apiClient.PostAsync<AccessTokenModel, UserLogin>(url, Model);
+
+        if (res.IsSuccess)
+        {
+            _apiClient.SetAuthorization(res.Model.AccessToken);
+
+
+            await _localStorage.SetItemAsync<AccessTokenModel>("CuentaVotosAuth", res.Model);
+
+            var profileRes = await GetProfile();
+            if (!profileRes.IsSuccess)
+            {
+                _toaster.Error(res.Message);
+                return;
+            }
+
+            await _localStorage.SetItemAsync<UserProfile>("CuentaVotosProfile", profileRes.Model);
+
+            var auth =   await _authProvider.GetAuthenticationStateAsync();
+            if (auth.User?.Identity==null)
+            {
+                _toaster.Error("Error de autenticación");
+                return;
+            }
+
+            if (!auth.User.Identity.IsAuthenticated)
+            {
+                _toaster.Error("Error de autenticación");
+                return;
+            }
+            var uri = _navigation.ToAbsoluteUri(_navigation.Uri);
+            
+            QueryHelpers.ParseQuery(uri.Query).TryGetValue("returnUrl", out var returnUrl);
+
+            if (string.IsNullOrEmpty(returnUrl))
+            {
+                _navigation.NavigateTo($"/", forceLoad: false);
+            }
+            else
+            {
+                _navigation.NavigateTo($"{returnUrl}", forceLoad: false);
+            }
+
+        }
+        else
+        {
+           _toaster.Error(res.Message);
+        }
+
+
+    }
+
+    protected async Task<ModelResult<UserProfile>> GetProfile()
+    {
+        var res = await _apiClient.GetAsync<UserProfile>("api/Account/Profile");
+        return res;
+    }
+}

@@ -1,0 +1,254 @@
+﻿@page "/Admin/Users"
+@attribute [Authorize(Roles = "0")]
+@inject SweetAlertService _swal
+@inject IToaster _toaster
+@inject ApiClient _client
+
+<div class="row mb-2">
+    <div class="col">
+        <a href="Account/Register" class="btn btn-primary">
+            <i class="oi oi-plus"></i> Agregar Usuario
+        </a>
+    </div>
+</div>
+@if (Model != null)
+{
+    <div class="row">
+
+        @foreach (var item in Model)
+        {
+            <div class="col-lg-6 col-xl-4 mb-2">
+                <Card>
+                    <Header>
+                        <button class="btn btn-sm btn-outline-danger float-end"
+                                title="Eliminar usuario"
+                        @onclick="()=>Delete(item)">
+                            <i class="oi oi-trash"></i>
+                        </button>
+                        <span class="h6">
+                            @item.FirstName @item.LastName
+                        </span>
+                    </Header>
+                    <Body>
+                        <div class="row">
+                            <div class="col-12">
+                                @item.Role - @item.State
+                            </div>
+                            <div class="col-12 mt-2">
+                                <small>
+                                    <i class="oi oi-envelope-closed"></i> @item.Email
+                                </small>
+                                <br />
+                                <small>
+                                    <i class="oi oi-phone"></i> @item.PhoneNumber
+                                </small>
+
+                            </div>
+                            <div class="col-12 mt-3">
+                                <div class="btn-group">
+                                    @if (item.RoleId == 0)
+                                    {
+                                        <button class="btn btn-sm btn-outline-success"
+                                        @onclick="()=>ChangeToUser(item)"
+                                                title="Convertir en usuario estandar">
+                                            <i class="oi oi-person"></i> Rol
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-outline-success"
+                                        @onclick="()=>ChangeToAdmin(item)"
+                                                title="Convertir en administrador">
+                                            <i class="oi oi-people"></i> Rol
+                                        </button>
+                                    }
+
+                                    @if (item.StateId == 0)
+                                    {
+                                        <button class="btn btn-sm btn-outline-success"
+                                        @onclick="()=>Activate(item)"
+                                                title="Activar usuario">
+                                            <i class="oi oi-battery-empty"></i> Estado
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-outline-success"
+                                        @onclick="()=>Deactivate(item)"
+                                                title="Inactivar usuario">
+                                            <i class="oi oi-battery-full"></i> Estado
+                                        </button>
+                                    }
+                                    <button class="btn btn-sm btn-outline-secondary"
+                                            title="Restablecer contraseña"
+                                    @onclick="()=>ShowModal(item)">
+                                        <i class="oi oi-key"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </Body>
+                </Card>
+
+
+            </div>
+        }
+
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col">
+            <div class="alert alert-info">
+                No hay usuarios registrados
+            </div>
+        </div>
+    </div>
+}
+
+
+<Modal Title="Restablecer clave" @ref="Modal">
+    <Content>
+
+        <span>Nueva contraseña</span>
+        <input type="password" class="form-control"
+        @bind="NewPassword" placeholder="Nueva contraseña" />
+        <button class="btn btn-success mt-3"
+        @onclick="ChangePassword">
+            <i class="oi oi-reload"></i> Restablecer clave
+        </button>
+    </Content>
+</Modal>
+
+
+
+@code {
+    public List<UserModel>? Model { get; set; }
+    public Modal? Modal { get; set; }
+    public UserModel? SelectedUser { get; set; }
+    public string NewPassword { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    protected async Task Load()
+    {
+        var res = await _client.GetAsync<List<UserModel>>("api/Users");
+        if (res.IsSuccess)
+        {
+            Model = res.Model;
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+    }
+    protected async Task Delete(UserModel model)
+    {
+        var confirm = await _swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmar eliminación!",
+                Text = "¿Confirma que desea elimianr este usuario? Esta operación no se puede revertir",
+                ShowCancelButton = true,
+                ShowConfirmButton = true,
+                ConfirmButtonText = "Eliminar",
+                CancelButtonText = "Cancelar"
+            });
+
+        if (!confirm.IsConfirmed)
+        {
+            return;
+        }
+
+        var res = await _client.DeleteAsync<string>($"api/Users/{model.Id}");
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+            await Load();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+    }
+
+    protected async void ShowModal(UserModel model)
+    {
+        SelectedUser = model;
+        await Modal.OpenModal();
+    }
+    protected async Task ChangePassword()
+    {
+        var res = await _client.PostAsync<string, UserRestorePassword>("/api/Users/RestorePassword", new UserRestorePassword
+            {
+                UserId = SelectedUser.Id,
+                NewPassword = NewPassword
+            });
+
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+            await Modal.CloseModal();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+    }
+
+    protected async Task ChangeToUser(UserModel model)
+    {
+        var res = await _client.GetAsync<string>($"api/Users/ChangeRol/{model.Id}/1");
+        if (res.IsSuccess)
+        {
+            await Load();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+    }
+
+    protected async Task ChangeToAdmin(UserModel model)
+    {        
+        var res = await _client.GetAsync<string>($"api/Users/ChangeRol/{model.Id}/0");
+        if (res.IsSuccess)
+        {
+            await Load();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+    }
+
+    protected async Task Activate(UserModel model)
+    {
+        var res = await _client.GetAsync<string>($"api/Users/ChangeState/{model.Id}/1");
+        if (res.IsSuccess)
+        {
+            await Load();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+
+    }
+
+    protected async Task Deactivate(UserModel model)
+    {
+        var res = await _client.GetAsync<string>($"api/Users/ChangeState/{model.Id}/0");
+        if (res.IsSuccess)
+        {
+            await Load();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+    }
+}
