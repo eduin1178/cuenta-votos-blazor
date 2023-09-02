@@ -5,7 +5,9 @@
         Puesto de votación
     </Header>
     <Body>
-        <button class="btn btn-primary mb-3" @onclick="ShowModal">Agregar</button>
+        <button class="btn btn-outline-primary mb-3" @onclick="ShowModal">
+            <i class="oi oi-plus"></i> Agregar
+        </button>
 
         @if (ListaPuestos == null)
         {
@@ -23,29 +25,38 @@
 
                     @foreach (var puesto in ListaPuestos)
                     {
-                        <div class="col-4 mb-2">
+                        <div class="col-lg-4 mb-2">
                             <Card>
                                 <Header>
-                                    <button class="btn btn-outline-danger btn-sm float-end"
-                                            title="Eliminar"
-                                    @onclick="()=>EliminarPuesto(puesto.Id)">
-                                        <i class="oi oi-trash"></i>
-                                    </button>
-                                    
+                                    <div class="btn-group float-end">
+                                        <button class="btn btn-outline-success btn-sm"
+                                                title="Editar"
+                                        @onclick="()=>ShowModalPuesto(puesto)">
+                                            <i class="oi oi-pencil"></i>
+                                        </button>
+
+                                        <button class="btn btn-outline-danger btn-sm"
+                                                title="Eliminar"
+                                        @onclick="()=>EliminarPuesto(puesto.Id)">
+                                            <i class="oi oi-trash"></i>
+                                        </button>
+                                    </div>
+                                    <i class="oi oi-map text-success"></i>
                                     @puesto.Name
                                 </Header>
                                 <Body>
                                     <p>Mesas: @puesto.Mesas</p>
                                     <div class="btn-group">
-                                        
+                                        <button type="button" class="btn btn-sm btn-outline-success"
+                                        @onclick="()=>Open(puesto)">
+                                            <i class="oi oi-arrow-right"></i> Mesas
+                                        </button>
                                     </div>
                                 </Body>
                             </Card>
-
                         </div>
                     }
                 </div>
-
             }
         }
     </Body>
@@ -81,9 +92,36 @@
         </EditForm>
     </Content>
 </Modal>
+<Modal Title="Editar Puesto" @ref="ModalPuesto">
+    <Content>
+        <EditForm Model="ModelPuesto" OnValidSubmit="EditarPuesto">
+            <div class="row mb-3">
+                <div class="col">
+                    <span>Número</span>
+                    <input type="number" class="form-control" @bind="ModelPuesto.Number" />
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <span>Nombre</span>
+                    <input type="text" class="form-control" @bind="ModelPuesto.Name" />
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="oi oi-check"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </Content>
+</Modal>
 @inject ApiClient _client
 @inject IToaster _toaster
-
+@inject SweetAlertService _swal
+@inject AppState _appState
+@inject NavigationManager _navigation
 @code {
     public List<PuestoModel>? ListaPuestos { get; set; }
     public PuestoCreate CreaPuesto { get; set; } = new PuestoCreate();
@@ -97,7 +135,7 @@
         var res = await _client.GetAsync<List<PuestoModel>>("api/Puestos");
         if (res.IsSuccess)
         {
-            ListaPuestos = res.Model;
+            ListaPuestos = res.Model.OrderBy(x=>x.Number).ToList();
             int numero = ListaPuestos.Count == 0 ? 1 : ListaPuestos.Max(x => x.Number) + 1;
             CreaPuesto = new PuestoCreate
                 {
@@ -138,6 +176,26 @@
 
     protected async Task EliminarPuesto(int puestoId)
     {
+        var confirm = await _swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Está seguro de eliminar este puesto de votación? Se eliminarán también las mesas",
+                Icon = SweetAlertIcon.Warning,
+
+                ShowCancelButton = true,
+                CancelButtonColor = "#28a745",
+                CancelButtonText = "Cancelar",
+
+                ShowConfirmButton = true,
+                ConfirmButtonColor = "#dc3545",
+                ConfirmButtonText = "Eliminar"
+
+            });
+
+        if (confirm.IsDismissed)
+        {
+            return;
+        }
         var res = await _client.DeleteAsync<string>($"api/Puestos/{puestoId}");
         if (res.IsSuccess)
         {
@@ -148,5 +206,35 @@
         {
             _toaster.Error(res.Message);
         }
+    }
+
+    protected async Task Open(PuestoModel model)
+    {
+        _appState.Puesto = model;
+        _navigation.NavigateTo($"Admin/Puesto");
+    }
+
+    Modal ModalPuesto = new Modal();
+    public PuestoModel? ModelPuesto { get; set; }
+    protected async Task ShowModalPuesto(PuestoModel model)
+    {
+        ModelPuesto = model;
+        await ModalPuesto.OpenModal();
+    }
+
+    protected async Task EditarPuesto()
+    {
+        var res = await _client.PostAsync<object, PuestoModel>($"api/Puestos/{ModelPuesto.Id}", ModelPuesto);
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+            await Load();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+
+        await ModalPuesto.CloseModal();
     }
 }

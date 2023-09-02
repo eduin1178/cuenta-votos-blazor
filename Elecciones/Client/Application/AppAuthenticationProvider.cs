@@ -10,11 +10,13 @@ namespace Elecciones.Client.Application
 
         private readonly ILocalStorageService _localStorage;
         ApiClient _client;
+        private readonly AppState _appState;
         private AuthenticationState Anonimo = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-        public AppAuthenticationProvider(ILocalStorageService localStorage, ApiClient client)
+        public AppAuthenticationProvider(ILocalStorageService localStorage, ApiClient client, AppState appState)
         {
             _localStorage = localStorage;
             _client = client;
+            _appState = appState;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -56,6 +58,7 @@ namespace Elecciones.Client.Application
 
         private ClaimsPrincipal SignIn(UserProfile userInfo)
         {
+            _appState.Profile = userInfo;
             var claims = new List<Claim>();
             claims.Add(new Claim(ClaimTypes.NameIdentifier, userInfo.Codigo.ToString()));
             claims.Add(new Claim(ClaimTypes.Name, userInfo.FirstName));

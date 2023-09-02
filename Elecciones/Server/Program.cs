@@ -65,6 +65,7 @@ namespace Elecciones
             builder.Services.AddTransient<IAccountRepository, AccountRespository>();
             builder.Services.AddTransient<IUserRespository, UserRepository>();
             builder.Services.AddTransient<IPuestoRepository, PuestoRepository>();
+            builder.Services.AddTransient<IMesaRepository, MesaRepository>();
 
             var app = builder.Build();
 

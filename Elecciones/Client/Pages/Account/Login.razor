@@ -53,6 +53,7 @@
     </EditForm>
 </div>
 
+@inject AppState _appState
 @code {
     public UserLogin Model { get; set; } = new UserLogin();
 
@@ -75,6 +76,7 @@
                 return;
             }
 
+            _appState.Profile = profileRes.Model;
             await _localStorage.SetItemAsync<UserProfile>("CuentaVotosProfile", profileRes.Model);
 
             var auth =   await _authProvider.GetAuthenticationStateAsync();

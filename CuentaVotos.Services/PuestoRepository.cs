@@ -79,8 +79,8 @@ namespace CuentaVotos.Services
                         Name = x.Name,
                         Number = x.Number,
                         UserId = x.UserId,
-                        UserFirstName = _context.Users.FirstOrDefault(y => y.Id == x.UserId).FirstName,
-                        UserLastName = _context.Users.FirstOrDefault(y => y.Id == x.UserId).LastName,
+                        UserFirstName = _context.Users.FirstOrDefault(y => y.Id == x.UserId)?.FirstName,
+                        UserLastName = _context.Users.FirstOrDefault(y => y.Id == x.UserId)?.LastName,
                     }).ToList();
 
                 var query = _context.Puestos.Where(x => x.Id == puestoId).ToList()

@@ -6,7 +6,8 @@
             <a href="/Account/Profile" class="nav-link">
                 <span class="text-dark nav-item"
                       title="@context.User.Claims.FirstOrDefault(x=>x.Type==ClaimTypes.Email)?.Value">
-                    @context.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value
+                    @* @context.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value *@
+                    @_appState?.Profile?.FirstName
                 </span>
             </a>
            
@@ -34,6 +35,7 @@
 @inject SweetAlertService swal
 @inject AuthenticationStateProvider _authProvider
 @inject ILocalStorageService _localStorage
+@inject AppState _appState
 
 @code {
 

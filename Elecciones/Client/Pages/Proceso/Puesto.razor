@@ -1,0 +1,243 @@
+﻿@page "/Admin/Puesto"
+
+@if (Model == null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <div class="row mb-3">
+        <div class="col">
+
+            <Card>
+                <Header>
+                    <a href="/Admin/Puestos" class="btn btn-sm btn-outline-secondary float-end">
+                        <i class="oi oi-arrow-left"></i>
+                    </a>
+                    Puesto de Votación   # @Model?.Number
+                </Header>
+                <Body>
+                    <div class="row mb-3">
+                        <div class="col-md-6 col-lg-4">
+                            <p>Nombre: @Model.Name</p>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <p>Número: @Model.Number</p>
+                        </div>
+                        <div class="col-md-6 col-lg-4">
+                            <p>Mesas: @Model.Mesas</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <button class="btn btn-outline-primary"
+                            @onclick="AgregarMesa">
+                                <i class="oi oi-plus"></i> Agregar Mesa
+                            </button>
+                        </div>
+                    </div>
+                </Body>
+            </Card>
+
+        </div>
+    </div>
+    <div class="row">
+        @foreach (var mesa in Model.ListaMesas.OrderBy(x => x.Number).ToList())
+        {
+            <div class="col-lg-4 mb-3">
+                <Card>
+                    <Header>
+                        <div class="btn-group float-end">
+                            <button class="btn btn-sm btn-outline-success"
+                            @onclick="()=>ShowModalMesa(mesa)">
+                                <i class="oi oi-pencil"></i>
+                            </button>
+
+                            <button class="btn btn-sm btn-outline-danger"
+                            @onclick="()=>EliminarMesa(mesa)">
+                                <i class="oi oi-trash"></i>
+                            </button>
+
+                        </div>
+                        <span class="h5">
+                            @mesa.Number - @mesa.Name
+                        </span>
+                    </Header>
+                    <Body>
+                        <div class="list-group">
+                            <div class="list-group-item">
+                                <small class="text-sm-end">Usuario responsable</small>
+                                <br />
+                                @mesa.UserFirstName @mesa.UserLastName
+                            </div>
+                        </div>
+                    </Body>
+                </Card>
+            </div>
+        }
+    </div>
+
+}
+
+<Modal Title="Editar Mesa" @ref="ModalMesa">
+    <Content>
+        <EditForm Model="Mesa" OnValidSubmit="ActualizarMesa">
+            <div class="row mb-3">
+                <div class="col">
+                    <span>Número</span>
+                    <input type="number" class="form-control" @bind="Mesa.Number" />
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <span>Nombre</span>
+                    <input type="text" class="form-control" @bind="Mesa.Name" />
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col">
+                    <span>Usuario</span>
+                    <select class="form-control" @bind="Mesa.UserId">
+                        <option value="-1">Seleccione...</option>
+                        @foreach (var user in Usuarios)
+                        {
+                            <option value="@user.Id">@user.FirstName @user.LastName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <button type="submit" class="btn btn-outline-success">
+                        <i class="oi oi-check"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </Content>
+</Modal>
+
+@inject ApiClient _client
+@inject IToaster _toaster
+@inject SweetAlertService _swal
+@inject NavigationManager _navManager
+@inject AppState _appState
+@inject ApiClient _client
+@code {
+
+    public PuestoModel? Model { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+        await LoadUsers();
+    }
+    protected async Task Load()
+    {
+        if (_appState?.Puesto?.Id == null)
+        {
+            _navManager.NavigateTo("Admin/Puestos");
+            return;
+        }
+        var res = await _client.GetAsync<PuestoModel>($"api/Puestos/{_appState.Puesto?.Id}");
+        if (res.IsSuccess)
+        {
+            Model = res.Model!;
+        }
+        else
+        {
+            _navManager.NavigateTo("Admin/Puestos");
+            _toaster.Error(res.Message);
+        }
+    }
+
+    public List<UserModel> Usuarios { get; set; } = new List<UserModel>();
+    protected async Task LoadUsers()
+    {
+        var res = await _client.GetAsync<List<UserModel>>($"api/Users");
+        if (res.IsSuccess)
+        {
+            Usuarios = res.Model!;
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+    }
+
+    Modal ModalMesa = new();
+    MesaModel Mesa = new MesaModel();
+    protected async Task ShowModalMesa(MesaModel model)
+    {
+        Mesa = model;
+        await ModalMesa.OpenModal();
+    }
+    protected async Task AgregarMesa()
+    {
+        var model = new MesaCreate
+            {
+                PuestoId = Model!.Id,
+                Number = Model.Mesas + 1,
+                Name = $"Mesa {Model.Mesas + 1}",
+            };
+
+        var res = await _client.PostAsync<object, MesaCreate>($"/api/Mesas", model);
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+            await Load();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+    }
+    protected async Task ActualizarMesa()
+    {
+        var res = await _client.PostAsync<object, MesaModel>($"/api/Mesas/{Mesa.Id}", Mesa);
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+            await Load();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+
+        await ModalMesa.CloseModal();
+    }
+
+    protected async Task EliminarMesa(MesaModel mesa)
+    {
+        var confirm = await _swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Está seguro de eliminar esta mesa?",
+                Icon = SweetAlertIcon.Warning,
+
+                ShowCancelButton = true,
+                CancelButtonColor = "#28a745",
+                CancelButtonText = "Cancelar",
+
+                ShowConfirmButton = true,
+                ConfirmButtonColor = "#dc3545",
+                ConfirmButtonText = "Eliminar"
+
+            });
+
+        if (confirm.IsConfirmed)
+        {
+            var res = await _client.DeleteAsync<object>($"api/Mesas/{mesa.Id}");
+            if (res.IsSuccess)
+            {
+                _toaster.Success("Mesa eliminada");
+                await Load();
+            }
+            else
+            {
+                _toaster.Error(res.Message);
+            }
+        }
+    }
+}
