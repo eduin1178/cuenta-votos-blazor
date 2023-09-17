@@ -1,0 +1,462 @@
+﻿@page "/Admin/Candidatos"
+
+<Card>
+
+    <Header>
+        Candidatos
+    </Header>
+    <Body>
+        <div class="row mb-2">
+            <div class="col-md-6">
+                <smap>Cargo</smap>
+                <div class="input-group">
+                    <select class="form-control" @bind="IdCargo">
+                        @if (ListaCargos != null)
+                        {
+                            if (ListaCargos.Count > 0)
+                            {
+                                foreach (var item in ListaCargos)
+                                {
+                                    <option value="@item.Id">@item.Nombre</option>
+
+                                }
+                            }
+                            else
+                            {
+                                <option>No hay cargos</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="0">Cargando...</option>
+                        }
+                    </select>
+                    <button class="btn btn-outline-primary"
+                    @onclick="()=>ShowModalCargo(new Cargo())">
+                        <i class="oi oi-plus"></i>
+                    </button>
+                    <button class="btn btn-outline-success"
+                    @onclick="()=>ShowModalCargo()">
+                        <i class="oi oi-pencil"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <span>Partido</span>
+                <div class="input-group">
+                    <select class="form-control" @bind="IdPartido">
+                        <option value="-1">Todos</option>
+                        @if (ListaPartidos != null)
+                        {
+                            if (ListaPartidos.Count > 0)
+                            {
+                                foreach (var item in ListaPartidos)
+                                {
+                                    <option value="@item.Id">@item.Nombre</option>
+
+                                }
+                            }
+                            else
+                            {
+                                <option>No hay partidos</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="0">Cargando...</option>
+                        }
+                    </select>
+                    <button class="btn btn-outline-primary"
+                    @onclick="()=>ShowModalPartido(new Partido())">
+                        <i class="oi oi-plus"></i>
+                    </button>
+                    <button class="btn btn-outline-success"
+                    @onclick="()=>ShowModalPartido()">
+                        <i class="oi oi-pencil"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-lg-12">
+                <button class="btn btn-outline-primary"
+                @onclick="()=>ShowModalCandidato(new Candidato())">
+                    <i class="oi oi-plus"></i> Agregar
+                </button>
+            </div>
+        </div>
+
+    </Body>
+</Card>
+
+<Modal Title="Cargo" @ref="ModalCargo">
+    <Content>
+        <EditForm Model="ModelCargo" OnValidSubmit="GuardarCargo">
+            <div class="row mb-2">
+                <div class="col">
+                    <span>Nombre</span>
+                    <input type="text" class="form-control" @bind="ModelCargo.Nombre" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    @if (ModelCargo.Id != 0)
+                    {
+
+                        <button class="btn btn-outline-danger float-end"
+                                type="button"
+                        @onclick="EliminarCargo">
+                            <i class="oi oi-danger"></i> Eliminar
+                        </button>
+                    }
+                    <button class="btn btn-outline-success" type="submit">
+                        <i class="oi oi-check"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </Content>
+</Modal>
+
+
+<Modal Title="Partido" @ref="ModalPartido">
+    <Content>
+        <EditForm Model="ModelPartido" OnValidSubmit="GuardarPartido">
+            <div class="row mb-2">
+                <div class="col">
+                    <span>Nombre</span>
+                    <input type="text" class="form-control" @bind="ModelPartido.Nombre" />
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col">
+                    <span>Color</span>
+                    <input type="color" class="form-control" @bind="ModelPartido.Color" />
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col">
+                    <div class="input-group">
+                        <img src="@ModelPartido.LogoUrl" class="img-circle img-sm img-fluid" />
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col">
+                    <span>UrlLogo</span>
+                    <div class="input-group">
+                        <input type="string" class="form-control" @bind="ModelPartido.LogoUrl" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    @if (ModelPartido.Id != 0)
+                    {
+
+                        <button class="btn btn-outline-danger float-end"
+                                type="button"
+                        @onclick="EliminarPartido">
+                            <i class="oi oi-danger"></i> Eliminar
+                        </button>
+                    }
+                    <button class="btn btn-outline-success" type="submit">
+                        <i class="oi oi-check"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </Content>
+</Modal>
+
+<Modal Title="Candidado" @ref="ModalCandidato">
+    <Content>
+
+        <EditForm Model="ModelCandidato" OnValidSubmit="GuardarCandidato">
+            <div class="row mb-2">
+                <div class="col">
+                    <span>Nombre</span>
+                    <input type="text" class="form-control" @bind="ModelCandidato.Nombre" />
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col">
+                    <span>Foto</span>
+                    <input type="text" class="form-control" @bind="ModelCandidato.FotoUrl" />
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col">
+                    @if (ModelPartido.Id != 0)
+                    {
+
+                        <button class="btn btn-outline-danger float-end"
+                                type="button"
+                        @onclick="()=>EliminarCandidato(ModelCandidato.Id)">
+                            <i class="oi oi-danger"></i> Eliminar
+                        </button>
+                    }
+                    <button class="btn btn-outline-success" type="submit">
+                        <i class="oi oi-check"></i> Guardar
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </Content>
+</Modal>
+
+@inject ApiClient _client
+@inject IToaster _toaster
+@inject SweetAlertService _swal
+@inject NavigationManager _navigation
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCargos();
+        await LoadPartidos();
+    }
+
+    #region Cargos
+    public List<Cargo> ListaCargos { get; set; }
+    protected async Task LoadCargos()
+    {
+        var res = await _client.GetAsync<List<Cargo>>("api/Cargos");
+        if (res.IsSuccess)
+        {
+            ListaCargos = res.Model;
+            IdCargo = ListaCargos.FirstOrDefault().Id;
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+            ListaCargos = new List<Cargo>();
+        }
+    }
+    public int IdCargo { get; set; }
+    public Cargo ModelCargo { get; set; } = new Cargo();
+
+    Modal ModalCargo = new();
+    protected async Task ShowModalCargo(Cargo model = null)
+    {
+        if (model != null)
+        {
+            ModelCargo = model;
+        }
+        else
+        {
+            ModelCargo = ListaCargos.FirstOrDefault(x => x.Id == IdCargo);
+        }
+
+        await ModalCargo.OpenModal();
+    }
+
+    protected async Task GuardarCargo()
+    {
+        var res = new ModelResult<object>();
+        if (ModelCargo.Id == 0)
+        {
+            res = await _client.PostAsync<object, Cargo>("api/Cargos", ModelCargo);
+        }
+        else
+        {
+            res = await _client.PostAsync<object, Cargo>($"api/Cargos/{ModelCargo.Id}", ModelCargo);
+        }
+
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+            await LoadCargos();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+
+        await ModalCargo.CloseModal();
+    }
+
+    protected async Task EliminarCargo()
+    {
+        var res = await _client.DeleteAsync<ModelResult<object>>($"api/Cargos/{IdCargo}");
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+            await LoadCargos();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+
+        await ModalCargo.CloseModal();
+
+    }
+
+    #endregion
+
+    #region Partidos
+    public List<Partido> ListaPartidos { get; set; }
+    public int? IdPartido { get; set; } = -1;
+    public Partido ModelPartido { get; set; } = new Partido();
+    protected async Task LoadPartidos()
+    {
+        var res = await _client.GetAsync<List<Partido>>("api/Partidos");
+        if (res.IsSuccess)
+        {
+            ListaPartidos = res.Model;
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+            ListaPartidos = new List<Partido>();
+        }
+    }
+
+    Modal ModalPartido;
+    protected async Task ShowModalPartido(Partido model = null)
+    {
+        if (model != null)
+        {
+            ModelPartido = model;
+        }
+        else
+        {
+            if (IdPartido == -1)
+            {
+                _toaster.Warning("Debe seleccionar un partido");
+                return;
+            }
+            ModelPartido = ListaPartidos.FirstOrDefault(x => x.Id == IdPartido);
+        }
+
+        await ModalPartido.OpenModal();
+    }
+
+    protected async Task GuardarPartido()
+    {
+        var res = new ModelResult<object>();
+        if (ModelPartido.Id == 0)
+        {
+            res = await _client.PostAsync<object, Partido>("api/Partidos", ModelPartido);
+        }
+        else
+        {
+            res = await _client.PostAsync<object, Partido>($"api/Partidos/{ModelPartido.Id}", ModelPartido);
+        }
+
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+            await LoadPartidos();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+
+        await ModalPartido.CloseModal();
+    }
+
+    protected async Task EliminarPartido()
+    {
+        var res = await _client.DeleteAsync<ModelResult<object>>($"api/Partidos/{IdPartido}");
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+            await LoadPartidos();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+
+        await ModalPartido.CloseModal();
+
+    }
+    #endregion
+
+    #region Candidato
+    public List<Candidato> ListaCandidatos { get; set; }
+    public int IdCandidado { get; set; }
+    public Candidato ModelCandidato { get; set; } = new Candidato();
+
+    protected async Task LoadCandidatos()
+    {
+        var res = await _client.GetAsync<List<Candidato>>($"api/Candidatos/{IdCandidado}?idPartido={IdPartido}");
+        if (res.IsSuccess)
+        {
+            ListaCandidatos = res.Model;
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+            ListaCandidatos = new List<Candidato>();
+        }
+    }
+
+    Modal ModalCandidato;
+    protected async Task ShowModalCandidato(Candidato model = null)
+    {
+        if (model != null)
+        {
+            ModelCandidato = model;
+        }
+        else
+        {
+            ModelCandidato = ListaCandidatos.FirstOrDefault(x => x.Id == IdCandidado);
+        }
+
+        await ModalCandidato.OpenModal();
+    }
+
+
+    protected async Task GuardarCandidato()
+    {
+        var res = new ModelResult<object>();
+        if (ModelCandidato.Id == 0)
+        {
+            res = await _client.PostAsync<object, Candidato>("api/Candidatos", ModelCandidato);
+        }
+        else
+        {
+            res = await _client.PostAsync<object, Candidato>($"api/Candidatos/{ModelCandidato.Id}", ModelCandidato);
+        }
+
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+            await LoadCandidatos();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+
+        await ModalCandidato.CloseModal();
+    }
+
+    protected async Task EliminarCandidato(int idCandidato)
+    {
+        var res = await _client.DeleteAsync<ModelResult<object>>($"api/Candidatos/{idCandidato}");
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+            await LoadCandidatos();
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+
+        await ModalPartido.CloseModal();
+
+    }
+    #endregion
+
+}

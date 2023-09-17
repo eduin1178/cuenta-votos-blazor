@@ -58,6 +58,7 @@ namespace Elecciones
             }
             catch (Exception)
             {
+
             }
 
             builder.Services.AddSingleton(x => new LiteDbContext(pathDb));
@@ -66,6 +67,10 @@ namespace Elecciones
             builder.Services.AddTransient<IUserRespository, UserRepository>();
             builder.Services.AddTransient<IPuestoRepository, PuestoRepository>();
             builder.Services.AddTransient<IMesaRepository, MesaRepository>();
+
+            builder.Services.AddTransient<ICargosRepository, CargosRepository>();
+            builder.Services.AddTransient<IPartidosRepository, PartidosRespository>();
+            builder.Services.AddTransient<ICandidatosRepository, CandidatosRepository>();
 
             var app = builder.Build();
 

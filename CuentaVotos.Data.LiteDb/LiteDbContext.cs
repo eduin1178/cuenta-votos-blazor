@@ -1,6 +1,7 @@
 ﻿using CuentaVotos.Entities.Puestos;
 using CuentaVotos.Entities.Account;
 using System.Xml.Linq;
+using CuentaVotos.Entities.Procesos;
 
 namespace CuentaVotos.Data.LiteDb
 {
@@ -25,11 +26,24 @@ namespace CuentaVotos.Data.LiteDb
             Mesas.ConfigureIndices(x => x.PuestoId, false);
             Mesas.ConfigureIndices(x => x.UserId, false);
 
+            Cargos = new LiteDbSet<Cargo>(InternalDatabase);
+            Cargos.ConfigureIndices(x => x.Id, true);
+
+            Partidos = new LiteDbSet<Partido>(InternalDatabase);
+            Partidos.ConfigureIndices(x => x.Id, true);
+
+            Candidatos = new LiteDbSet<Candidato>(InternalDatabase);
+            Candidatos.ConfigureIndices(x => x.Id, true);
+            Candidatos.ConfigureIndices(x => x.PartidoId, false);
+            Candidatos.ConfigureIndices(x => x.CargoId, false);
         }
 
         public readonly LiteDbSet<User> Users;
         public readonly LiteDbSet<Puesto> Puestos;
         public readonly LiteDbSet<Mesa> Mesas;
+        public readonly LiteDbSet<Cargo> Cargos;
+        public readonly LiteDbSet<Partido> Partidos;
+        public readonly LiteDbSet<Candidato> Candidatos;
 
     }
 }
