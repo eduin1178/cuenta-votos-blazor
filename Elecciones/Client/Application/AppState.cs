@@ -5,8 +5,8 @@ namespace Elecciones.Client.Application
 {
     public class AppState
     {
-        PuestoModel? _puesto;
-        public PuestoModel? Puesto
+        PuestoModel _puesto;
+        public PuestoModel Puesto
         {
             get
             {
@@ -19,8 +19,8 @@ namespace Elecciones.Client.Application
         }
 
        
-        UserProfile? _profile;
-        public UserProfile? Profile
+        UserProfile _profile;
+        public UserProfile Profile
         {
             get
             {

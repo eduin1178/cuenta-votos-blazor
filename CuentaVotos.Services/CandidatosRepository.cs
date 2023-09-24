@@ -21,15 +21,30 @@ namespace CuentaVotos.Services
             _context = context;
         }
 
-        public ModelResult<List<Candidato>> Lista(int idCargo, int? idPartido = -1)
+        public ModelResult<List<CandidatoModel>> Lista(int idCargo)
         {
-            var result = new ModelResult<List<Candidato>>();
+            var result = new ModelResult<List<CandidatoModel>>();
 
             try
             {
+                var partidos = _context.Partidos.AsEnumerable().ToList();
+                var cargos = _context.Cargos.AsEnumerable().ToList();
                 var query = _context.Candidatos
-                    .Where(x=>x.CargoId == idCargo
-                    && (x.PartidoId == idPartido || idPartido == -1)).ToList();
+                    .Where(x=>x.CargoId == idCargo)
+                    .Select(x=> new CandidatoModel
+                    {
+                        Id = x.Id,
+                        CargoId = x.CargoId,
+                        PartidoId = x.PartidoId,
+                        Nombre = x.Nombre,
+                        Numero = x.Numero,
+                        FotoUrl = x.FotoUrl,
+                        Partido = partidos.FirstOrDefault(y=>y.Id == x.PartidoId)?.Nombre,
+                        LogoPartido = partidos.FirstOrDefault(y => y.Id == x.PartidoId)?.LogoUrl,
+                        ColorPartido = partidos.FirstOrDefault(y => y.Id == x.PartidoId)?.Color,
+                        Cargo = partidos.FirstOrDefault(y => y.Id == x.PartidoId)?.Nombre,
+                    })
+                    .ToList();
 
                 result.IsSuccess = true;
                 result.Message = "OK";

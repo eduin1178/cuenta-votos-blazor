@@ -1,0 +1,9 @@
+﻿<h3>NombreEditor</h3>
+@nombre 
+<input type="text" class="form-control" @bind="nombre" />
+@code {
+    [CascadingParameter]
+    public string nombre { get; set; }
+
+    
+}

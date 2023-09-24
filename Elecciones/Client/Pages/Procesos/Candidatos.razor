@@ -10,7 +10,7 @@
             <div class="col-md-6">
                 <smap>Cargo</smap>
                 <div class="input-group">
-                    <select class="form-control" @bind="IdCargo">
+                    <select class="form-control" @onchange="(e) => AlCambiarCargo(e)">
                         @if (ListaCargos != null)
                         {
                             if (ListaCargos.Count > 0)
@@ -87,6 +87,80 @@
                 </button>
             </div>
         </div>
+        @if (ListaCandidatos != null)
+        {
+            if (ListaCandidatos.Count == 0)
+            {
+                <p>No hay candidatos</p>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var item in ListaCandidatos
+                    .Where(x=>x.CargoId == IdCargo)
+                    .Where(x=>x.PartidoId == IdPartido || IdPartido == -1)
+                    .OrderBy(x=>x.Numero).ToList())
+                    {
+                        <div class="col-lg-6 col-xl-3 mb-2">
+                            <Card>
+                                <Header>
+                                    <div class="float-end">
+                                        <button class="btn btn-sm btn-outline-success"
+                                                title="Editar candidato"
+                                        @onclick="()=>ShowModalCandidato(item)">
+                                            <i class="oi oi-pencil"></i>
+                                        </button>
+
+                                        <button class="btn btn-sm btn-outline-danger "
+                                                title="Eliminar candidato"
+                                        @onclick="()=>EliminarCandidato(item.Id)">
+                                            <i class="oi oi-trash"></i>
+                                        </button>
+                                    </div>
+                                    <p class="h4">
+                                        @item.Numero
+                                    </p>
+
+
+                                </Header>
+                                <Body>
+
+                                    <div style="min-height:150px">
+
+                                        <div class="row">
+                                            <div class="col-6 text-center">
+                                                <img src="@item.FotoUrl" class="img-fluid" style="width:100px" />
+                                            </div>
+                                            <div class="col-6">
+                                                <img src="@item.LogoPartido" class="img-thumbnail" style="width:100px" />
+                                                <br />
+                                                @item.Partido
+
+                                            </div>
+                                        </div>
+                                        <div class="row mt-3">
+                                            <div class="col">
+                                                <span class="h5">
+                                                    @item.Nombre
+                                                </span>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Body>
+                            </Card>
+                        </div>
+                    }
+                </div>
+
+            }
+        }
+        else
+        {
+            <div class="list-group-item">
+                <p>Cargando coandidatos...</p>
+            </div>
+        }
 
     </Body>
 </Card>
@@ -148,7 +222,8 @@
                 <div class="col">
                     <span>UrlLogo</span>
                     <div class="input-group">
-                        <input type="string" class="form-control" @bind="ModelPartido.LogoUrl" />
+                        <input type="string" class="form-control" @bind="ModelPartido.LogoUrl"
+                        placeholder="Url del logo"/>
                     </div>
                 </div>
             </div>
@@ -178,6 +253,12 @@
         <EditForm Model="ModelCandidato" OnValidSubmit="GuardarCandidato">
             <div class="row mb-2">
                 <div class="col">
+                    <span>Número</span>
+                    <input type="text" class="form-control" @bind="ModelCandidato.Numero" />
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col">
                     <span>Nombre</span>
                     <input type="text" class="form-control" @bind="ModelCandidato.Nombre" />
                 </div>
@@ -185,7 +266,9 @@
             <div class="row mb-2">
                 <div class="col">
                     <span>Foto</span>
-                    <input type="text" class="form-control" @bind="ModelCandidato.FotoUrl" />
+                    <input type="text" class="form-control"
+                    placeholder="Url de la foto"
+                    @bind="ModelCandidato.FotoUrl" />
                 </div>
             </div>
 
@@ -214,12 +297,14 @@
 @inject IToaster _toaster
 @inject SweetAlertService _swal
 @inject NavigationManager _navigation
+
 @code {
 
     protected override async Task OnInitializedAsync()
     {
         await LoadCargos();
         await LoadPartidos();
+        await LoadCandidatos();
     }
 
     #region Cargos
@@ -237,6 +322,11 @@
             _toaster.Error(res.Message);
             ListaCargos = new List<Cargo>();
         }
+    }
+    protected async Task AlCambiarCargo(ChangeEventArgs e)
+    {
+        IdCargo  = Convert.ToInt32(e.Value);
+        await LoadCandidatos();
     }
     public int IdCargo { get; set; }
     public Cargo ModelCargo { get; set; } = new Cargo();
@@ -382,13 +472,13 @@
     #endregion
 
     #region Candidato
-    public List<Candidato> ListaCandidatos { get; set; }
+    public List<CandidatoModel> ListaCandidatos { get; set; }
     public int IdCandidado { get; set; }
     public Candidato ModelCandidato { get; set; } = new Candidato();
 
     protected async Task LoadCandidatos()
     {
-        var res = await _client.GetAsync<List<Candidato>>($"api/Candidatos/{IdCandidado}?idPartido={IdPartido}");
+        var res = await _client.GetAsync<List<CandidatoModel>>($"api/Candidatos/ListaPorCargo/{IdCargo}");
         if (res.IsSuccess)
         {
             ListaCandidatos = res.Model;
@@ -396,7 +486,7 @@
         else
         {
             _toaster.Error(res.Message);
-            ListaCandidatos = new List<Candidato>();
+            ListaCandidatos = new List<CandidatoModel>();
         }
     }
 
@@ -405,6 +495,7 @@
     {
         if (model != null)
         {
+            model.Numero = ListaCandidatos.Count>0?ListaCandidatos.Max(x=>x.Numero) + 1:1;
             ModelCandidato = model;
         }
         else
@@ -421,6 +512,15 @@
         var res = new ModelResult<object>();
         if (ModelCandidato.Id == 0)
         {
+            if (IdPartido == -1)
+            {
+                _toaster.Warning("Debe seleccionar el partido");
+                return;
+            }
+
+            ModelCandidato.CargoId = IdCargo;
+            ModelCandidato.PartidoId = Convert.ToInt32(IdPartido);
+
             res = await _client.PostAsync<object, Candidato>("api/Candidatos", ModelCandidato);
         }
         else
@@ -443,6 +543,20 @@
 
     protected async Task EliminarCandidato(int idCandidato)
     {
+        var confirm = await _swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmar eliminación",
+                Text = "¿Está seguro que desea eliminar este candidato? No se podrá revertir esta operación",
+                ShowConfirmButton = true,
+                ShowCancelButton = true,
+                CancelButtonText = "Cancelar",
+                ConfirmButtonText = "Eliminar"
+            });
+
+        if (!confirm.IsConfirmed)
+        {
+            return;
+        }
         var res = await _client.DeleteAsync<ModelResult<object>>($"api/Candidatos/{idCandidato}");
         if (res.IsSuccess)
         {

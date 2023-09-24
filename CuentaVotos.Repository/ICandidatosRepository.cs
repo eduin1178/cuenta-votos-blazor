@@ -10,7 +10,7 @@ namespace CuentaVotos.Repository
 {
     public interface ICandidatosRepository
     {
-        ModelResult<List<Candidato>> Lista(int idCargo, int? idPartido = null);        
+        ModelResult<List<CandidatoModel>> Lista(int idCargo);        
         ModelResult<object> Crear(Candidato candidato);
         ModelResult<object> Actualizar(int idCandidato, Candidato candidato);
         ModelResult<object> Eliminar(int idCandidato);

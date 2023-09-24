@@ -16,9 +16,9 @@ namespace Elecciones.Server.Controllers
             _candidatosRepository = candidatosRepository;
         }
         [HttpGet("ListaPorCargo/{idCargo}")]
-        public IActionResult Lista(int idCargo, int? idPartido = null)
+        public IActionResult Lista(int idCargo)
         {
-            var res = _candidatosRepository.Lista(idCargo, idPartido);
+            var res = _candidatosRepository.Lista(idCargo);
             return Ok(res);
         }
 
