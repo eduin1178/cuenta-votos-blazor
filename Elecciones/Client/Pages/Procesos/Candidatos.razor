@@ -97,9 +97,9 @@
             {
                 <div class="row">
                     @foreach (var item in ListaCandidatos
-                    .Where(x=>x.CargoId == IdCargo)
-                    .Where(x=>x.PartidoId == IdPartido || IdPartido == -1)
-                    .OrderBy(x=>x.Numero).ToList())
+                   .Where(x => x.CargoId == IdCargo)
+                   .Where(x => x.PartidoId == IdPartido || IdPartido == -1)
+                   .OrderBy(x => x.Numero).ToList())
                     {
                         <div class="col-lg-6 col-xl-3 mb-2">
                             <Card>
@@ -223,8 +223,9 @@
                     <span>UrlLogo</span>
                     <div class="input-group">
                         <input type="string" class="form-control" @bind="ModelPartido.LogoUrl"
-                        placeholder="Url del logo"/>
+                               placeholder="Url del logo" />
                     </div>
+
                 </div>
             </div>
             <div class="row">
@@ -267,7 +268,7 @@
                 <div class="col">
                     <span>Foto</span>
                     <input type="text" class="form-control"
-                    placeholder="Url de la foto"
+                           placeholder="Url de la foto"
                     @bind="ModelCandidato.FotoUrl" />
                 </div>
             </div>
@@ -325,7 +326,7 @@
     }
     protected async Task AlCambiarCargo(ChangeEventArgs e)
     {
-        IdCargo  = Convert.ToInt32(e.Value);
+        IdCargo = Convert.ToInt32(e.Value);
         await LoadCandidatos();
     }
     public int IdCargo { get; set; }
@@ -495,7 +496,7 @@
     {
         if (model != null)
         {
-            model.Numero = ListaCandidatos.Count>0?ListaCandidatos.Max(x=>x.Numero) + 1:1;
+            model.Numero = ListaCandidatos.Count > 0 ? ListaCandidatos.Max(x => x.Numero) + 1 : 1;
             ModelCandidato = model;
         }
         else
