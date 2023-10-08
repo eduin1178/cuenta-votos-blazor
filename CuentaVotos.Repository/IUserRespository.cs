@@ -1,4 +1,5 @@
 ﻿using CuentaVotos.Entities.Account;
+using CuentaVotos.Entities.Puestos;
 using CuentaVotos.Entities.Shared;
 
 namespace CuentaVotos.Repository
@@ -10,6 +11,6 @@ namespace CuentaVotos.Repository
         ModelResult<string> ChangeRol(int userId, int newRole);
         ModelResult<string> Delete(int userId);
         ModelResult<string> RestorePassword(UserRestorePassword model);
-
+        ModelResult<List<PuestoModel>> Puestos(string userCode);
     }
 }

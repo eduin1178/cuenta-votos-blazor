@@ -3,6 +3,7 @@ using CuentaVotos.Data.LiteDb;
 using CuentaVotos.Entities.Shared;
 using CuentaVotos.Entities.Account;
 using CuentaVotos.Repository;
+using CuentaVotos.Entities.Puestos;
 
 namespace CuentaVotos.Services
 {
@@ -181,6 +182,60 @@ namespace CuentaVotos.Services
             }
         }
 
+        public ModelResult<List<PuestoModel>> Puestos(string userCode)
+        {
 
+            var usuario = _context.Users.FirstOrDefault(x => x.Codigo == Guid.Parse(userCode));
+            if (usuario == null)
+                return new ModelResult<List<PuestoModel>>
+                {
+                    IsSuccess = false,
+                    Message = "Usuario no encontrado"
+                };
+
+            try
+            {
+                var mesas = _context.Mesas
+                        .Where(x => x.UserId == usuario.Id).ToList();
+
+                var puestos = _context.Puestos.AsEnumerable();
+
+                var model = puestos.Where(x => mesas.Any(y => y.PuestoId == x.Id))
+                        .Select(x => new PuestoModel
+                        {
+                            Id = x.Id,
+                            Code = x.Code,
+                            Name = x.Name,
+                            Number = x.Number,
+                            ListaMesas = mesas.Where(y => y.PuestoId == x.Id)
+                        .Select(mesa => new MesaModel
+                        {
+                            Id = mesa.Id,
+                            Code = mesa.Code,
+                            Number = mesa.Number,
+                            Name = mesa.Name,
+                        }).ToList(),
+
+                        }).ToList();
+
+                return new ModelResult<List<PuestoModel>>
+                {
+                    IsSuccess = true,
+                    Message = "OK",
+                    Model = model
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ModelResult<List<PuestoModel>>
+                {
+                    IsSuccess = false,
+                    Message = "Error al cargar la lista de puestos",
+                    Model = null,
+                    Exception = ex,
+                };
+            }
+
+        }
     }
 }

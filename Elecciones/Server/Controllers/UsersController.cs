@@ -51,5 +51,13 @@ namespace Elecciones.Server.Controllers
             var res = _userRespository.RestorePassword(model);
             return Ok(res);
         }
+
+        [HttpGet("Puestos")]
+        public IActionResult Puestos()
+        {
+            var userCode = User.Identity.Name;
+            var res = _userRespository.Puestos(userCode);
+            return  Ok(res);
+        }
     }
 }

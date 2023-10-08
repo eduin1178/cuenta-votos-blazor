@@ -10,7 +10,7 @@
             <div class="col-md-6">
                 <smap>Cargo</smap>
                 <div class="input-group">
-                    <select class="form-control" @onchange="(e) => AlCambiarCargo(e)">
+                    <select class="form-select" @onchange="(e) => AlCambiarCargo(e)">
                         @if (ListaCargos != null)
                         {
                             if (ListaCargos.Count > 0)
@@ -44,7 +44,7 @@
             <div class="col-md-6">
                 <span>Partido</span>
                 <div class="input-group">
-                    <select class="form-control" @bind="IdPartido">
+                    <select class="form-select" @bind="IdPartido">
                         <option value="-1">Todos</option>
                         @if (ListaPartidos != null)
                         {
@@ -316,7 +316,11 @@
         if (res.IsSuccess)
         {
             ListaCargos = res.Model;
+            if (ListaCargos.Count >0)
+            {
             IdCargo = ListaCargos.FirstOrDefault().Id;
+                
+            }
         }
         else
         {

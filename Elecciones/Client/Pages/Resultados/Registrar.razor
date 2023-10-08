@@ -1,0 +1,141 @@
+﻿@page "/Resultados/Registrar"
+
+<Card>
+    <Header>
+        Registrar resultados
+    </Header>
+    <Body>
+        <div class="row">
+            <div class="col-lg-4">
+                <label>Puesto</label>
+                <select class="form-select" @bind="IdPuesto">
+                    @if (Puestos == null)
+                    {
+                        <option>Cargando...</option>
+                    }
+                    else
+                    {
+                        @foreach (var puesto in Puestos)
+                        {
+                            <option value="@puesto.Id">@puesto.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-lg-4">
+                <label>Mesa</label>
+                <select class="form-select" @bind="IdMesa">
+                    @if (Puestos == null)
+                    {
+                        <option>Cargando...</option>
+                    }
+                    else
+                    {
+                        if (IdPuesto == 0)
+                        {
+                            <option>Cargando...</option>
+                        }
+                        else
+                        {
+                            @foreach (var mesa in Puestos.FirstOrDefault(x => x.Id == IdPuesto).ListaMesas)
+                            {
+                                <option value="@mesa.Id">@mesa.Name</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-lg-4">
+                <label>Cargo</label>
+                <select class="form-select" @bind="IdCargo">
+                    @if (ListaCargos != null)
+                    {
+                        if (ListaCargos.Count > 0)
+                        {
+                            foreach (var item in ListaCargos)
+                            {
+                                <option value="@item.Id">@item.Nombre</option>
+
+                            }
+                        }
+                        else
+                        {
+                            <option>No hay cargos</option>
+                        }
+                    }
+                    else
+                    {
+                        <option value="0">Cargando...</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+    </Body>
+</Card>
+
+@inject ApiClient _apiClient
+@inject IToaster _toaster
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarPuestos();
+        await CargarCargos();
+    }
+
+    public List<PuestoModel> Puestos { get; set; }
+    public int IdPuesto { get; set; }
+    public int IdMesa { get; set; }
+
+    protected async Task CargarPuestos()
+    {
+        var res = await _apiClient.GetAsync<List<PuestoModel>>("api/Users/Puestos");
+        if (res.IsSuccess)
+        {
+            Puestos = res.Model;
+            if (Puestos.Count>0)
+            {
+                IdPuesto = Puestos.FirstOrDefault().Id;
+                CargarMesas();
+            }
+        }
+        else
+        {
+            Puestos = new List<PuestoModel>();
+            _toaster.Error(res.Message);
+        }
+    }
+
+
+    protected void CargarMesas()
+    {
+        if (Puestos.Count >0)
+        {
+            var puesto = Puestos.FirstOrDefault(x => x.Id == IdPuesto);
+            if (puesto.ListaMesas.Count >0)
+            {
+                IdMesa = puesto.ListaMesas.First().Id;
+            }
+        }
+    }
+
+    public int IdCargo { get; set; }
+    public List<Cargo> ListaCargos { get; set; }
+    protected async Task CargarCargos()
+    {
+        var res = await _apiClient.GetAsync<List<Cargo>>("api/Cargos");
+        if (res.IsSuccess)
+        {
+            ListaCargos = res.Model;
+            if (ListaCargos.Count > 0)
+            {
+                IdCargo = ListaCargos.FirstOrDefault().Id;
+            }
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+            ListaCargos = new List<Cargo>();
+        }
+    }
+}

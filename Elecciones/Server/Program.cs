@@ -71,6 +71,7 @@ namespace Elecciones
             builder.Services.AddTransient<ICargosRepository, CargosRepository>();
             builder.Services.AddTransient<IPartidosRepository, PartidosRespository>();
             builder.Services.AddTransient<ICandidatosRepository, CandidatosRepository>();
+            builder.Services.AddTransient<IResultadosRepository, ResultadosRepository>();
 
             var app = builder.Build();
 
