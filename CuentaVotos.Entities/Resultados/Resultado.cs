@@ -14,7 +14,7 @@ namespace CuentaVotos.Entities.Resultados
         public int IdMesa { get; set; }
         public int IdCargo { get; set; }
         public int IdPartido { get; set; }
-        public int VotosPartido { get; set; }
+        public int? VotosPartido { get; set; }
         public List<DetallesResultado> Detalles { get; set; }
         public int IdUsuarioRegistro { get; set; }
         public DateTime Registrado { get; set; }

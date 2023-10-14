@@ -25,8 +25,8 @@ namespace CuentaVotos.Services
                 .Where(x => x.CargoId == idCargo)
                 .ToList();
 
-            var partidos = _context.Partidos
-                .Where(x => candidatos.Any(y => y.Id == x.Id))
+            var partidos = _context.Partidos.AsEnumerable()
+                .Where(x => candidatos.Any(y => y.PartidoId == x.Id))
                 .ToList();
 
             var resultados = _context.Resultados
@@ -40,26 +40,22 @@ namespace CuentaVotos.Services
                 var item = new ResultadoModel
                 {
                     IdPartido = partido.Id,
-                    Code = resultados.Where(x => x.IdPartido == partido.Id).First().Code,
+                    Code = resultados.Where(x => x.IdPartido == partido.Id).FirstOrDefault()?.Code,
                     NombrePartido = partido.Nombre,
                     LogoPartido = partido.LogoUrl,
-                    VotosPartido = resultados.Where(x => x.IdPartido == partido.Id).Sum(x => x.VotosPartido),
+                    ColorPartido = partido.Color,
+                    VotosPartido = Convert.ToInt32(resultados.Where(x => x.IdPartido == partido.Id).Sum(x => x.VotosPartido)),
                     Detalles = new List<DetallesResultadoModel>(),
-                    Confirmacion = resultados.Where(x => x.IdPartido == partido.Id).First().Confirmacion,
-                    Confirmado = resultados.Where(x => x.IdPartido == partido.Id).First().Confirmado,
-                    IdUsuarioRegistro = resultados.Where(x => x.IdPartido == partido.Id).First().IdUsuarioRegistro,
-                    Registrado = resultados.Where(x => x.IdPartido == partido.Id).First().Registrado,
                 };
 
-                foreach (var candidato in candidatos)
+                foreach (var candidato in candidatos.Where(x => x.PartidoId == partido.Id))
                 {
                     item.Detalles.Add(new DetallesResultadoModel
                     {
                         IdCantidato = candidato.Id,
-                        VotosCandidato = resultados.FirstOrDefault(x => x.IdPartido == partido.Id
-                                        && x.Detalles.Any(y => y.IdCantidato == candidato.Id))?.VotosPartido ?? 0,
+                        VotosCandidato = resultados.FirstOrDefault(x => x.IdPartido == partido.Id)?.Detalles.FirstOrDefault(x=>x.IdCantidato == candidato.Id)?.VotosCandidato?? 0,
                         NombreCandidato = candidato.Nombre,
-                        Numero   = candidato.Numero,
+                        Numero = candidato.Numero,
                         FotoCandidatoUrl = candidato.FotoUrl,
                     });
                 }
@@ -75,15 +71,56 @@ namespace CuentaVotos.Services
                 Code = 1,
             };
         }
-        public ModelResult<string> Guardar(int idPuesto, int idMesa, int idCargo, List<ResultadoModel> resultados)
+        public ModelResult<string> Guardar(string userCode, int idPuesto, int idMesa, int idCargo, List<ResultadoModel> resultados)
         {
-            throw new NotImplementedException();
-        }
-        public ModelResult<string> Confirmar(int idPuesto, int idMesa, int idCargo)
-        {
-            throw new NotImplementedException();
-        }
+            var usuario = _context.Users.FirstOrDefault(x => x.Codigo == Guid.Parse(userCode));
+            if (usuario == null)
+                return new ModelResult<string>
+                {
+                    IsSuccess = false,
+                    Message = "Usuario no encontrado"
+                };
 
+            var entities = _context.Resultados
+                .Where(x => x.IdPuesto == idPuesto && x.IdMesa == idMesa && x.IdCargo == idCargo).ToList();
+
+            foreach (var resultado in resultados)
+            {
+                var newEntity = new Resultado
+                {
+                    IdCargo = idCargo,
+                    IdPuesto = idPuesto,
+                    IdMesa = idMesa,
+                    IdPartido = resultado.IdPartido,
+                    Code = Guid.NewGuid(),
+                    Confirmado = false,
+                    Registrado = DateTime.Now,
+                    IdUsuarioRegistro = usuario.Id,
+                    VotosPartido = resultado.VotosPartido,
+                    Detalles = resultado.Detalles.Select(x => new DetallesResultado
+                    {
+                        IdCantidato = x.IdCantidato,
+                        VotosCandidato = x.VotosCandidato,
+                    }).ToList(),
+                };
+
+                var entity = entities.FirstOrDefault(x => x.IdPartido == resultado.IdPartido);
+                if (entity != null)
+                {
+                    _context.Resultados.Delete(entity.Id);
+                }
+                _context.Resultados.Add(newEntity);
+            }
+
+            return new ModelResult<string>
+            {
+                IsSuccess = true,
+                Message = "Resultados registrados correctamente",
+                Count = resultados.Count,
+                Code = 1,
+            };
+        }
+      
 
 
         public ModelResult<List<ResultadoGeneralModel>> ResultadosGenales(int idCargo)

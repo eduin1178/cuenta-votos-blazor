@@ -24,7 +24,13 @@ namespace Elecciones.Server.Controllers
             return Ok(res);
         }
 
-        //ModelResult<string> Guardar(int idPuesto, int idMesa, int idCargo, List<ResultadoModel> resultados);
+        [HttpPost("{idPuesto}/{idMesa}/{idCargo}")]
+        public IActionResult Guardar(int idPuesto, int idMesa, int idCargo, List<ResultadoModel> resultados)
+        {
+            var userCode = User.Identity.Name;
+            var res = _resultadosRepository.Guardar(userCode, idPuesto, idMesa, idCargo, resultados);
+            return Ok(res);
+        }
         //ModelResult<string> Confirmar(int idPuesto, int idMesa, int idCargo);
 
         //ModelResult<List<ResultadoMesaModel>> ResultadosMesa(int idCargo, int idPuesto, int idMesa);

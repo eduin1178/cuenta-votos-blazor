@@ -37,7 +37,7 @@ namespace CuentaVotos.Services
                             Number = y.Number,
                             PuestoId = y.PuestoId,
                             UserId = y.UserId,
-                        }).ToList();
+                        }).OrderBy(x=>x.Number).ToList();
 
                 var query = _context.Puestos.AsEnumerable()
                     .Select(x => new PuestoModel
@@ -46,8 +46,8 @@ namespace CuentaVotos.Services
                         Number = x.Number,
                         Code = x.Code,
                         Name = x.Name,
-                        ListaMesas = queryMesas.Where(y=>y.PuestoId == x.Id).ToList(),
-                    }).ToList();
+                        ListaMesas = queryMesas.Where(y=>y.PuestoId == x.Id).OrderBy(y=>y.Number).ToList(),
+                    }).OrderBy(x=>x.Number).ToList();
 
                 res.IsSuccess = true;
                 res.Message = "OK";
