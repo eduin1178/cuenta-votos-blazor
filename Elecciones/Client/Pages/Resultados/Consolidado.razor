@@ -1,53 +1,13 @@
-﻿@page "/Resultados/Registrar"
+﻿@page "/Resultados/Consolidado"
 
+<PageTitle>Resultados</PageTitle>
 <Card>
     <Header>
-        Registrar resultadosss
+        Resultados
     </Header>
 
     <Body>
         <div class="row mb-3">
-            <div class="col-lg-4">
-                <label>Puesto</label>
-                <select class="form-select" value="@IdPuesto"
-                @onchange="AlCambiarPuesto">
-                    @if (Puestos == null)
-                    {
-                        <option>Cargando...</option>
-                    }
-                    else
-                    {
-                        @foreach (var puesto in Puestos)
-                        {
-                            <option value="@puesto.Id">@puesto.Name</option>
-                        }
-                    }
-                </select>
-            </div>
-            <div class="col-lg-4">
-                <label>Mesa</label>
-                <select class="form-select" value="@IdMesa"
-                @onchange="AlCambiarMesa">
-                    @if (Puestos == null)
-                    {
-                        <option>Cargando...</option>
-                    }
-                    else
-                    {
-                        if (IdPuesto == 0)
-                        {
-                            <option>Cargando...</option>
-                        }
-                        else
-                        {
-                            @foreach (var mesa in Puestos.FirstOrDefault(x => x.Id == IdPuesto).ListaMesas.OrderBy(x=>x.Number).ToList())
-                            {
-                                <option value="@mesa.Id">@mesa.Name</option>
-                            }
-                        }
-                    }
-                </select>
-            </div>
             <div class="col-lg-4">
                 <label>Cargo</label>
                 <select class="form-select" value="@IdCargo" @onchange="AlCambiarCargo">
@@ -72,6 +32,45 @@
                     }
                 </select>
             </div>
+            <div class="col-lg-4">
+                <label>Puesto</label>
+                <select class="form-select" value="@IdPuesto"
+                @onchange="AlCambiarPuesto">
+                    <option value="0">Todos</option>
+                    @if (Puestos == null)
+                    {
+                        <option>Cargando...</option>
+                    }
+                    else
+                    {
+                        @foreach (var puesto in Puestos)
+                        {
+                            <option value="@puesto.Id">@puesto.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-lg-4">
+                <label>Mesa</label>
+                <select class="form-select" value="@IdMesa"
+                @onchange="AlCambiarMesa">
+                    <option value="0">Todas</option>
+                    @if (Puestos == null)
+                    {
+                        <option>Cargando...</option>
+                    }
+                    else
+                    {
+                        if (IdPuesto > 0)
+                        {
+                            @foreach (var mesa in Puestos.FirstOrDefault(x => x.Id == IdPuesto).ListaMesas.OrderBy(x => x.Number).ToList())
+                            {
+                                <option value="@mesa.Id">@mesa.Name</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
         </div>
         <div class="row">
             <ProgressBar Visible="_apiClient.Cargando" />
@@ -79,7 +78,7 @@
         <div class="row mb-3">
             <div class="col">
                 <div class="list-group">
-                    
+
                     @if (Resultados != null)
                     {
                         @foreach (var resultado in Resultados)
@@ -114,17 +113,32 @@
                                         @foreach (var detalle in resultado.Detalles)
                                         {
                                             <div class="list-group-item">
-                                                <div class="flex-column d-flex align-items-baseline">
-                                                    <div class="flex-row d-flex align-items-center gap-3">
+                                                <div class="row">
+                                                    <div class="col-md-2">
+
                                                         <img src="@detalle.FotoCandidatoUrl" width="50" height="70"
                                                              class="rounded-5" />
+
+                                                    </div>
+
+                                                    <div class="col-md-10">
                                                         <div class="row">
-                                                            <div class="col">
-                                                                <strong>
-                                                                    @detalle.Numero - @detalle.NombreCandidato
-                                                                </strong>
-                                                                <input type="number" class="form-control" placeholder="Votos"
-                                                                @bind="detalle.VotosCandidato" />
+
+                                                        <div class="col-md-8">
+                                                            <strong>
+                                                                @detalle.Numero - @detalle.NombreCandidato
+                                                            </strong>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <strong class="float-end">
+                                                                @detalle.VotosCandidato
+                                                            </strong>
+                                                        </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                <ResultBar Parcial="@detalle.VotosCandidato" Total="@Total" Color="@resultado.ColorPartido" />
+
                                                             </div>
                                                         </div>
                                                     </div>
@@ -139,18 +153,15 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <button class="btn btn-success" title="Guardar datos"
-            @onclick="Guardar">
-                <i class="oi oi-check"></i> Guardar
-            </button>
-        </div>
+
     </Body>
 </Card>
 
-@inject ApiClient _apiClient
-@inject IToaster _toaster
-@implements IDisposable 
+
+
+@inject ApiClient _apiClient;
+@inject IToaster _toaster;
+@implements IDisposable
 @code {
     protected override void OnInitialized()
     {
@@ -168,6 +179,35 @@
         CargarMesas();
         await CargarResultados();
     }
+    public int IdCargo { get; set; }
+    public List<Cargo> ListaCargos { get; set; }
+    protected async Task CargarCargos()
+    {
+        var res = await _apiClient.GetAsync<List<Cargo>>("api/Cargos");
+        if (res.IsSuccess)
+        {
+            ListaCargos = res.Model.OrderBy(x => x.Id).ToList();
+            if (ListaCargos.Count > 0)
+            {
+                IdCargo = ListaCargos.FirstOrDefault().Id;
+            }
+            else
+            {
+                _toaster.Error("No hay cargos registrados");
+            }
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+            ListaCargos = new List<Cargo>();
+        }
+    }
+    protected async Task AlCambiarCargo(ChangeEventArgs e)
+    {
+        IdCargo = Convert.ToInt32(e.Value);
+        await CargarResultados();
+    }
+
 
     public List<PuestoModel> Puestos { get; set; }
     public int IdPuesto { get; set; }
@@ -175,18 +215,10 @@
 
     protected async Task CargarPuestos()
     {
-        var res = await _apiClient.GetAsync<List<PuestoModel>>("api/Users/Puestos");
+        var res = await _apiClient.GetAsync<List<PuestoModel>>("api/Puestos");
         if (res.IsSuccess)
         {
-            Puestos = res.Model.OrderBy(x=>x.Number).ToList();
-            if (Puestos.Count > 0)
-            {
-                IdPuesto = Puestos.FirstOrDefault().Id;
-            }
-            else
-            {
-                _toaster.Error("El usuario no tiene puestos asignados");
-            }
+            Puestos = res.Model.OrderBy(x => x.Number).ToList();
         }
         else
         {
@@ -206,15 +238,6 @@
         if (Puestos.Count > 0)
         {
             var puesto = Puestos.FirstOrDefault(x => x.Id == IdPuesto);
-            if (puesto.ListaMesas.Count > 0)
-            {
-                IdMesa = puesto.ListaMesas.OrderBy(x=>x.Number).ToList().First().Id;
-            }
-            else
-            {
-                IdMesa = 0;
-                _toaster.Error("El usuario no tiene mesas asignadas");
-            }
         }
     }
     protected async void AlCambiarMesa(ChangeEventArgs e)
@@ -223,57 +246,15 @@
         await CargarResultados();
     }
 
-    public int IdCargo { get; set; }
-    public List<Cargo> ListaCargos { get; set; }
-    protected async Task CargarCargos()
-    {
-        var res = await _apiClient.GetAsync<List<Cargo>>("api/Cargos");
-        if (res.IsSuccess)
-        {
-            ListaCargos = res.Model.OrderBy(x=>x.Id).ToList();
-            if (ListaCargos.Count > 0)
-            {
-                IdCargo = ListaCargos.FirstOrDefault().Id;
-            }
-            else
-            {
-                _toaster.Error("No hay cargos registrados");            
-            }
-        }
-        else
-        {
-            _toaster.Error(res.Message);
-            ListaCargos = new List<Cargo>();
-        }
-    }
-    protected async Task AlCambiarCargo(ChangeEventArgs e)
-    {
-        IdCargo = Convert.ToInt32(e.Value);
-        await CargarResultados();
-    }
-
-    public List<ResultadoModel> Resultados { get; set; }
+    public List<ResultadoGeneralModel> Resultados { get; set; }
+    public int Total => Resultados.Sum(x => x.VotosCandidato);
     protected async Task CargarResultados()
     {
-        var res = await _apiClient.GetAsync<List<ResultadoModel>>($"api/Resultados/{IdPuesto}/{IdMesa}/{IdCargo}");
+        var res = await _apiClient.GetAsync<List<ResultadoGeneralModel>>($"api/Resultados/Consolidado/{IdCargo}/{IdPuesto}/{IdMesa}");
         if (res.IsSuccess)
         {
             Resultados = res.Model;
             await InvokeAsync(StateHasChanged);
-        }
-        else
-        {
-            _toaster.Error(res.Message);
-            Resultados = new List<ResultadoModel>();
-        }
-    }
-
-    protected async Task Guardar()
-    {
-        var res = await _apiClient.PostAsync<object, List<ResultadoModel>>($"api/Resultados/{IdPuesto}/{IdMesa}/{IdCargo}", Resultados);
-        if (res.IsSuccess)
-        {
-            _toaster.Success("Datos guardados correctamente");
         }
         else
         {

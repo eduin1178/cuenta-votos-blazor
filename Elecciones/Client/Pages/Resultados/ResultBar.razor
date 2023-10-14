@@ -1,0 +1,36 @@
+﻿<div class="progress" role="progressbar" aria-label="Success example" 
+aria-valuenow="@Porcentaje" aria-valuemin="0" aria-valuemax="100">
+    <div class="progress-bar" style="width: @Valor; background-color:@Color"></div>
+</div>
+
+@code {
+    [Parameter]
+    public decimal Total { get; set; }
+
+    [Parameter]
+    public decimal Parcial { get; set; }
+
+    public decimal? Porcentaje
+    {
+        get
+        {
+            if (Total == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return Math.Round(Parcial * 100 / Total, 0, MidpointRounding.AwayFromZero);
+            }
+        }
+    }
+    public string Valor
+    {
+        get
+        {
+            return $"{Porcentaje}%";
+        }
+    }
+    [Parameter]
+    public string Color { get; set; }
+}

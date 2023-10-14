@@ -1,7 +1,8 @@
 ﻿@page "/"
 @attribute [Authorize]
+@using Elecciones.Client.Pages.Resultados
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Inicio</PageTitle>
 <Card>
     <Header>
         Usuario
@@ -12,5 +13,7 @@
     </Body>
 
 </Card>
+
+  <ResultBar />
 
 <a href="Resultados/Registrar">Registrar Resultados</a>

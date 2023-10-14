@@ -40,7 +40,7 @@ namespace CuentaVotos.Data.LiteDb
             Resultados = new LiteDbSet<Resultado>(InternalDatabase);
             Resultados.ConfigureIndices(x=>x.Id, true);
             Resultados.ConfigureIndices(x=>x.Code, true);
-            Resultados.ConfigureIndices("UX_Partidos", x=> new {x.IdPuesto, x.IdMesa, x.IdPartido }, true);
+            Resultados.ConfigureIndices("UX_Resultados", x=> new {x.IdPuesto, x.IdMesa, x.IdPartido, x.IdCargo }, true);
         }
 
         public readonly LiteDbSet<User> Users;

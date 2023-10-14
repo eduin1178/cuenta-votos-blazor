@@ -1,6 +1,7 @@
 ﻿using CuentaVotos.Entities.Resultados;
 using CuentaVotos.Entities.Shared;
 using CuentaVotos.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace Elecciones.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ResultadosController : ControllerBase
     {
         private readonly IResultadosRepository _resultadosRepository;
@@ -35,6 +37,11 @@ namespace Elecciones.Server.Controllers
 
         //ModelResult<List<ResultadoMesaModel>> ResultadosMesa(int idCargo, int idPuesto, int idMesa);
         //ModelResult<List<ResultadoPuestoModel>> ResultadosPuesto(int idCargo, int idPuesto);
-        //ModelResult<List<ResultadoGeneralModel>> ResultadosGenales(int idCargo);
+        [HttpGet("Consolidado/{idCargo}/{idPuesto}/{idMesa}")]
+        public IActionResult Resultados(int idCargo, int idPuesto, int idMesa)
+        {
+            var res = _resultadosRepository.Resultados(idCargo, idPuesto, idMesa);
+            return Ok(res);
+        }
     }
 }
