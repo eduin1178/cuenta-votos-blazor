@@ -1,9 +1,14 @@
 ﻿@page "/Resultados/Consolidado"
+@using Microsoft.AspNetCore.SignalR.Client;
 
 <PageTitle>Resultados</PageTitle>
 <Card>
     <Header>
-        Resultados
+        <button class="btn btn-sm btn-outline-secondary float-end"
+        @onclick="CargarResultados">
+            <i class="oi oi-reload"></i> Actualizar
+        </button>
+        <h4>Resultados</h4>
     </Header>
 
     <Body>
@@ -77,52 +82,51 @@
         </div>
         <div class="row mb-3">
             <div class="col">
-                <div class="list-group">
 
-                    @if (Resultados != null)
+                @if (Resultados != null)
+                {
+                    @foreach (var resultado in Resultados)
                     {
-                        @foreach (var resultado in Resultados)
-                        {
-                            <Card>
-                                <Header>
-                                    <button class="btn btn-link text-dark btn-sm float-end"
-                                    @onclick="(()=>resultado.ToggleExpandido())">
-                                        @if (resultado.Expandido)
-                                        {
-                                            <i class="oi oi-collapse-up"></i>
-
-                                        }
-                                        else
-                                        {
-                                            <i class="oi oi-expand-down"></i>
-                                        }
-                                    </button>
-                                    <div class="flex-row d-flex align-items-center gap-3">
-                                        <img src="@resultado.LogoPartido" width="40" height="40" class="rounded-circle" />
-                                        <span class="h4 align-content-center">
-                                            <strong>
-                                                @resultado.NombrePartido
-                                            </strong>
-                                        </span>
-                                    </div>
-                                </Header>
-
-                                <Body>
+                        <Card>
+                            <Header>
+                                <button class="btn btn-link text-dark btn-sm float-end"
+                                @onclick="(()=>resultado.ToggleExpandido())">
                                     @if (resultado.Expandido)
                                     {
-                                        @foreach (var detalle in resultado.Detalles)
-                                        {
-                                            <div class="list-group-item">
-                                                <div class="row">
-                                                    <div class="col-md-2">
+                                        <i class="oi oi-collapse-up"></i>
 
-                                                        <img src="@detalle.FotoCandidatoUrl" width="50" height="70"
-                                                             class="rounded-5" />
+                                    }
+                                    else
+                                    {
+                                        <i class="oi oi-expand-down"></i>
+                                    }
+                                </button>
+                                <div class="flex-row d-flex align-items-center gap-3">
+                                    <img src="@resultado.LogoPartido" width="40" height="40" class="rounded-circle" />
+                                    <span class="h4 align-content-center">
+                                        <strong>
+                                            @resultado.NombrePartido
+                                        </strong>
+                                    </span>
+                                </div>
+                            </Header>
 
-                                                    </div>
+                            <Body>
+                                @if (resultado.Expandido)
+                                {
+                                    @foreach (var detalle in resultado.Detalles)
+                                    {
+                                        <div class="list-group-item">
+                                            <div class="row">
+                                                <div class="col-md-2">
 
-                                                    <div class="col-md-10">
-                                                        <div class="row">
+                                                    <img src="@detalle.FotoCandidatoUrl" width="50" height="70"
+                                                         class="rounded-5" />
+
+                                                </div>
+
+                                                <div class="col-md-10">
+                                                    <div class="row">
 
                                                         <div class="col-md-8">
                                                             <strong>
@@ -134,26 +138,36 @@
                                                                 @detalle.VotosCandidato
                                                             </strong>
                                                         </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-12">
-                                                                <ResultBar Parcial="@detalle.VotosCandidato" Total="@Total" Color="@resultado.ColorPartido" />
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <ResultBar Parcial="@detalle.VotosCandidato" Total="@Total" Color="@resultado.ColorPartido" />
 
-                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        }
+                                        </div>
                                     }
-                                </Body>
-                            </Card>
-                        }
+                                }
+                            </Body>
+                        </Card>
                     }
-                </div>
+                }
+
             </div>
         </div>
+        <div class="row">
+            <div class="col-12">
+                <h2 class="float-end">
+                    @Total
+                </h2>
+                <h2>
+                    TOTAL VOTOS:
+                </h2>
 
+            </div>
+        </div>
     </Body>
 </Card>
 
@@ -162,6 +176,7 @@
 @inject ApiClient _apiClient;
 @inject IToaster _toaster;
 @implements IDisposable
+@inject NavigationManager _navigation
 @code {
     protected override void OnInitialized()
     {
@@ -172,13 +187,32 @@
     {
         _apiClient.OnChange -= StateHasChanged;
     }
+
+
+    private HubConnection hubConnection;
+
     protected override async Task OnInitializedAsync()
     {
         await CargarCargos();
         await CargarPuestos();
         CargarMesas();
         await CargarResultados();
+
+        //await Conectar();
     }
+
+    protected async Task Conectar()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(_navigation.ToAbsoluteUri("/Resultados/Noify"))
+            .Build();
+
+        hubConnection.On("NotifyResult", async () => await CargarResultados());
+
+        await hubConnection.StartAsync();
+
+    }
+
     public int IdCargo { get; set; }
     public List<Cargo> ListaCargos { get; set; }
     protected async Task CargarCargos()
@@ -246,7 +280,7 @@
         await CargarResultados();
     }
 
-    public List<ResultadoGeneralModel> Resultados { get; set; }
+    public List<ResultadoGeneralModel> Resultados { get; set; } = new List<ResultadoGeneralModel>();
     public int Total => Resultados.Sum(x => x.VotosCandidato);
     protected async Task CargarResultados()
     {

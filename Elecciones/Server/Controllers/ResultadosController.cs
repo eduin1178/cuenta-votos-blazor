@@ -1,9 +1,11 @@
 ﻿using CuentaVotos.Entities.Resultados;
 using CuentaVotos.Entities.Shared;
 using CuentaVotos.Repository;
+using Elecciones.Server.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Elecciones.Server.Controllers
 {
@@ -13,10 +15,12 @@ namespace Elecciones.Server.Controllers
     public class ResultadosController : ControllerBase
     {
         private readonly IResultadosRepository _resultadosRepository;
+        private readonly IHubContext<NotifyResultHub> _notifyResultHub;
 
-        public ResultadosController(IResultadosRepository resultadosRepository)
+        public ResultadosController(IResultadosRepository resultadosRepository, IHubContext<NotifyResultHub> notifyResultHub)
         {
             _resultadosRepository = resultadosRepository;
+            _notifyResultHub = notifyResultHub;
         }
 
         [HttpGet("{idPuesto}/{idMesa}/{idCargo}")]
@@ -27,16 +31,17 @@ namespace Elecciones.Server.Controllers
         }
 
         [HttpPost("{idPuesto}/{idMesa}/{idCargo}")]
-        public IActionResult Guardar(int idPuesto, int idMesa, int idCargo, List<ResultadoModel> resultados)
+        public async Task<IActionResult> Guardar(int idPuesto, int idMesa, int idCargo, List<ResultadoModel> resultados)
         {
             var userCode = User.Identity.Name;
             var res = _resultadosRepository.Guardar(userCode, idPuesto, idMesa, idCargo, resultados);
+            if (res.IsSuccess)
+            {
+               await _notifyResultHub.Clients.All.SendAsync("NotifyResult", userCode, idCargo, idPuesto);
+            }
             return Ok(res);
         }
-        //ModelResult<string> Confirmar(int idPuesto, int idMesa, int idCargo);
 
-        //ModelResult<List<ResultadoMesaModel>> ResultadosMesa(int idCargo, int idPuesto, int idMesa);
-        //ModelResult<List<ResultadoPuestoModel>> ResultadosPuesto(int idCargo, int idPuesto);
         [HttpGet("Consolidado/{idCargo}/{idPuesto}/{idMesa}")]
         public IActionResult Resultados(int idCargo, int idPuesto, int idMesa)
         {

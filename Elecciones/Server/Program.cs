@@ -1,7 +1,10 @@
 using CuentaVotos.Data.LiteDb;
 using CuentaVotos.Repository;
 using CuentaVotos.Services;
+using Elecciones.Server.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
@@ -16,7 +19,12 @@ namespace Elecciones
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
-
+            builder.Services.AddSignalR();
+            builder.Services.AddResponseCompression(opts =>
+            {
+                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                    new[] { "application/octet-stream" });
+            });
             var allowedOrigins = builder.Configuration.GetSection("Origins").Get<string[]>();
 
             builder.Services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
@@ -72,6 +80,7 @@ namespace Elecciones
             builder.Services.AddTransient<IPartidosRepository, PartidosRespository>();
             builder.Services.AddTransient<ICandidatosRepository, CandidatosRepository>();
             builder.Services.AddTransient<IResultadosRepository, ResultadosRepository>();
+            builder.Services.AddScoped<NotifyResultHub>();
 
             var app = builder.Build();
 
@@ -99,8 +108,10 @@ namespace Elecciones
 
 
             app.MapRazorPages();
-            app.MapControllers();
             app.MapFallbackToFile("index.html");
+            app.MapHub<NotifyResultHub>("/Resultados/Noify",
+                   o => o.Transports = HttpTransportType.WebSockets);
+            app.MapControllers();
 
             app.Run();
         }
