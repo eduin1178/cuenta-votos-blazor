@@ -16,4 +16,16 @@
 
   <ResultBar />
 
+<FileUpload AutoUpload="false" FilePath="@_storageConfig.PircuresPath" Container="@_storageConfig.Container" MaxAllowedFiles="1"
+            MaxFileSize="@_storageConfig.MaxFileSize"
+  OnUploadSuccess="OnUploadSuccess"/>
 <a href="Resultados/Registrar">Registrar Resultados</a>
+
+@inject StorageConfig _storageConfig
+@code {
+    
+    private void OnUploadSuccess(UploadResult result)
+    {
+        Console.WriteLine(result.Url);
+    }
+}

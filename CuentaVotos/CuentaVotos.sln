@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elecciones.Client", "..\Ele
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CuentaVotos.Entities", "..\CuentaVotos.Entities\CuentaVotos.Entities.csproj", "{A0206D0E-6FE4-4168-8D3A-5D0904252517}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CuentaVotos.Storage", "CuentaVotos.Storage\CuentaVotos.Storage.csproj", "{CEF51F54-4601-4034-A3B3-0F30FBAB07CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{A0206D0E-6FE4-4168-8D3A-5D0904252517}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A0206D0E-6FE4-4168-8D3A-5D0904252517}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A0206D0E-6FE4-4168-8D3A-5D0904252517}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEF51F54-4601-4034-A3B3-0F30FBAB07CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEF51F54-4601-4034-A3B3-0F30FBAB07CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEF51F54-4601-4034-A3B3-0F30FBAB07CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEF51F54-4601-4034-A3B3-0F30FBAB07CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

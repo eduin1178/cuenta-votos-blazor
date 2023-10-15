@@ -1,0 +1,112 @@
+﻿@using System.Linq
+@using System.Net.Http.Headers
+
+<div class="input-group">
+    <InputFile class="form-control" OnChange="@OnInputFileChange" />
+    @if (isUploading)
+    {
+        <button type="button" class="btn btn-primary" disabled>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cargando
+        </button>
+    }
+    else
+    {
+        <button type="button" class="btn btn-primary" @onclick="Upload">
+            <i class="bi bi-upload"></i> Cargar
+        </button>
+    }
+</div>
+@inject ApiClient _apiClient
+@inject IToaster _toaster
+
+@code {
+
+    [Parameter] public int MaxAllowedFiles { get; set; } = 1;
+    [Parameter] public long MaxFileSize { get; set; } = 2;
+    [Parameter] public bool AutoUpload { get; set; } = false;
+    [Parameter] public string Container { get; set; } = "eduin1178-pruebas";
+    [Parameter] public string FilePath { get; set; }
+
+    [Parameter] public EventCallback<UploadResult> OnUploadSuccess { get; set; }
+    string fileName;
+    private bool shouldRender;
+    private long maxFileSize;
+    private bool isUploading;
+
+
+    protected override bool ShouldRender() => shouldRender;
+    StreamContent fileContent;
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        shouldRender = false;
+        maxFileSize = MaxFileSize * 1024 * 1024;
+
+        if (e.FileCount > MaxAllowedFiles)
+        {
+            _toaster.Error($"Máximo {MaxAllowedFiles} archivos");
+            shouldRender = true;
+            return;
+        }
+        if (e.File.Size > maxFileSize)
+        {
+            _toaster.Error($"El tamaño máximo permitido es de {MaxFileSize}MB");
+            shouldRender = true;
+            return;
+        }
+        var file = e.GetMultipleFiles(MaxAllowedFiles).FirstOrDefault();
+
+
+        fileName = file.Name;
+        fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+
+
+        fileContent.Headers.ContentType =
+                    new MediaTypeHeaderValue(file.ContentType);
+
+
+        if (AutoUpload)
+        {
+            await Upload();
+        }
+        shouldRender = true;
+    }
+
+    protected async Task Upload()
+    {
+        if (fileContent == null)
+        {
+            _toaster.Error($"Debe seleccionar un archivo");
+            shouldRender = true;
+            return;
+        }
+
+
+        isUploading = true;
+        using var content = new MultipartFormDataContent();
+
+        content.Add(
+                content: fileContent,
+                name: "\"file\"",
+                fileName: fileName);
+
+        var url = $"api/Storage/Upload/{Container}";
+        if (!string.IsNullOrEmpty(FilePath))
+        {
+            url += $"?path={FilePath}";
+        }
+
+        var result = await _apiClient.PostFileAsync(url, content);
+
+        if (result.IsSuccess)
+        {
+            _toaster.Success("Archivo cargado correctamente");
+        }
+        else
+        {
+            _toaster.Error($"Error al cargar el archivo. {result.Exception.Message}");
+        }
+        await OnUploadSuccess.InvokeAsync(result);
+        fileContent = null;
+        isUploading = false;
+    }
+}

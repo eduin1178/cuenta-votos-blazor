@@ -1,6 +1,7 @@
 ﻿
 using CuentaVotos.Core.Shared;
 using CuentaVotos.Entities.Shared;
+using CuentaVotos.Storage;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -83,24 +84,20 @@ namespace Elecciones.Client.Application
             return res;
         }
 
-
-        public async Task<ModelResult<UploadResult>> PostAsync(string url, MultipartFormDataContent content)
+        public async Task<UploadResult> PostFileAsync(string url, MultipartFormDataContent content)
         {
-            Cargando = true;
+
             var response = await Client.PostAsync(url, content);
             if (!response.IsSuccessStatusCode)
             {
-                Cargando = false;
-                return new ModelResult<UploadResult>
+                return new UploadResult
                 {
-
                     IsSuccess = false,
                     Message = "Error al conectar con el servicio",
                 };
             }
             var responseContent = await response.Content.ReadAsStringAsync();
-            var res = JsonSerializer.Deserialize<ModelResult<UploadResult>>(responseContent, jsonOptions);
-            Cargando = false;
+            var res = JsonSerializer.Deserialize<UploadResult>(responseContent, jsonOptions);
             return res;
         }
 

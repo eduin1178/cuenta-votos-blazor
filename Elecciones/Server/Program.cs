@@ -1,10 +1,12 @@
 using CuentaVotos.Data.LiteDb;
 using CuentaVotos.Repository;
 using CuentaVotos.Services;
+using CuentaVotos.Storage;
 using Elecciones.Server.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
@@ -81,6 +83,11 @@ namespace Elecciones
             builder.Services.AddTransient<ICandidatosRepository, CandidatosRepository>();
             builder.Services.AddTransient<IResultadosRepository, ResultadosRepository>();
             builder.Services.AddScoped<NotifyResultHub>();
+
+            builder.Services.AddTransient<ICuentaVotosStorage, BunnyStorage>();
+            var configBunny = new BunnyStorageConfig();
+            builder.Configuration.Bind("BunnyStorageConfig", configBunny);
+            builder.Services.AddSingleton(configBunny);
 
             var app = builder.Build();
 

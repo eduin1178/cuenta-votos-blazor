@@ -16,6 +16,12 @@ namespace Elecciones.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
+
+
+            var storageSetting = new StorageConfig();
+            builder.Configuration.Bind("StorageConfig", storageSetting);
+            builder.Services.AddSingleton(storageSetting);
+
             builder.Services.AddScoped<AuthenticationStateProvider, AppAuthenticationProvider>();
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddScoped<ApiClient>();

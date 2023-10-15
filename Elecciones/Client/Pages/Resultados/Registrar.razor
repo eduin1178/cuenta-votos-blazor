@@ -1,4 +1,5 @@
 ﻿@page "/Resultados/Registrar"
+@using Microsoft.AspNetCore.SignalR.Client;
 
 <Card>
     <Header>
@@ -40,7 +41,7 @@
                         }
                         else
                         {
-                            @foreach (var mesa in Puestos.FirstOrDefault(x => x.Id == IdPuesto).ListaMesas.OrderBy(x=>x.Number).ToList())
+                            @foreach (var mesa in Puestos.FirstOrDefault(x => x.Id == IdPuesto).ListaMesas.OrderBy(x => x.Number).ToList())
                             {
                                 <option value="@mesa.Id">@mesa.Name</option>
                             }
@@ -79,7 +80,7 @@
         <div class="row mb-3">
             <div class="col">
                 <div class="list-group">
-                    
+
                     @if (Resultados != null)
                     {
                         @foreach (var resultado in Resultados)
@@ -150,7 +151,8 @@
 
 @inject ApiClient _apiClient
 @inject IToaster _toaster
-@implements IDisposable 
+@implements IDisposable
+@inject NavigationManager _navigation
 @code {
     protected override void OnInitialized()
     {
@@ -161,6 +163,8 @@
     {
         _apiClient.OnChange -= StateHasChanged;
     }
+
+
     protected override async Task OnInitializedAsync()
     {
         await CargarCargos();
@@ -178,7 +182,7 @@
         var res = await _apiClient.GetAsync<List<PuestoModel>>("api/Users/Puestos");
         if (res.IsSuccess)
         {
-            Puestos = res.Model.OrderBy(x=>x.Number).ToList();
+            Puestos = res.Model.OrderBy(x => x.Number).ToList();
             if (Puestos.Count > 0)
             {
                 IdPuesto = Puestos.FirstOrDefault().Id;
@@ -208,7 +212,7 @@
             var puesto = Puestos.FirstOrDefault(x => x.Id == IdPuesto);
             if (puesto.ListaMesas.Count > 0)
             {
-                IdMesa = puesto.ListaMesas.OrderBy(x=>x.Number).ToList().First().Id;
+                IdMesa = puesto.ListaMesas.OrderBy(x => x.Number).ToList().First().Id;
             }
             else
             {
@@ -230,14 +234,14 @@
         var res = await _apiClient.GetAsync<List<Cargo>>("api/Cargos");
         if (res.IsSuccess)
         {
-            ListaCargos = res.Model.OrderBy(x=>x.Id).ToList();
+            ListaCargos = res.Model.OrderBy(x => x.Id).ToList();
             if (ListaCargos.Count > 0)
             {
                 IdCargo = ListaCargos.FirstOrDefault().Id;
             }
             else
             {
-                _toaster.Error("No hay cargos registrados");            
+                _toaster.Error("No hay cargos registrados");
             }
         }
         else
@@ -274,6 +278,7 @@
         if (res.IsSuccess)
         {
             _toaster.Success("Datos guardados correctamente");
+
         }
         else
         {

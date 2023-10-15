@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\CuentaVotos.Core\CuentaVotos.Core.csproj" />
     <ProjectReference Include="..\..\CuentaVotos.Entities\CuentaVotos.Entities.csproj" />
+    <ProjectReference Include="..\..\CuentaVotos\CuentaVotos.Storage\CuentaVotos.Storage.csproj" />
   </ItemGroup>
 
 </Project>

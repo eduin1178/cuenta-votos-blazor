@@ -82,7 +82,7 @@
         <div class="row mb-3">
             <div class="col-lg-12">
                 <button class="btn btn-outline-primary"
-                @onclick="()=>ShowModalCandidato(new Candidato())">
+                @onclick="()=>ShowModalCandidato(null)">
                     <i class="oi oi-plus"></i> Agregar
                 </button>
             </div>
@@ -260,6 +260,32 @@
             </div>
             <div class="row mb-2">
                 <div class="col">
+                    <span>Partido</span>
+                    <select class="form-select" @bind="ModelCandidato.PartidoId">
+                        @if (ListaPartidos != null)
+                        {
+                            if (ListaPartidos.Count > 0)
+                            {
+                                foreach (var item in ListaPartidos)
+                                {
+                                    <option value="@item.Id">@item.Nombre</option>
+
+                                }
+                            }
+                            else
+                            {
+                                <option>No hay partidos</option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="0">Cargando...</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col">
                     <span>Nombre</span>
                     <input type="text" class="form-control" @bind="ModelCandidato.Nombre" />
                 </div>
@@ -273,12 +299,10 @@
                 </div>
             </div>
 
-
             <div class="row">
                 <div class="col">
                     @if (ModelPartido.Id != 0)
                     {
-
                         <button class="btn btn-outline-danger float-end"
                                 type="button"
                         @onclick="()=>EliminarCandidato(ModelCandidato.Id)">
@@ -316,10 +340,10 @@
         if (res.IsSuccess)
         {
             ListaCargos = res.Model;
-            if (ListaCargos.Count >0)
+            if (ListaCargos.Count > 0)
             {
-            IdCargo = ListaCargos.FirstOrDefault().Id;
-                
+                IdCargo = ListaCargos.FirstOrDefault().Id;
+
             }
         }
         else
@@ -500,12 +524,20 @@
     {
         if (model != null)
         {
-            model.Numero = ListaCandidatos.Count > 0 ? ListaCandidatos.Max(x => x.Numero) + 1 : 1;
             ModelCandidato = model;
         }
         else
         {
-            ModelCandidato = ListaCandidatos.FirstOrDefault(x => x.Id == IdCandidado);
+            ModelCandidato = new Candidato();
+            ModelCandidato.Numero = 1;
+            try
+            {
+                ModelCandidato.Numero = ListaCandidatos.Max(x => x.Numero) + 1;
+
+            }
+            catch (Exception)
+            {
+            }
         }
 
         await ModalCandidato.OpenModal();
@@ -524,7 +556,6 @@
             }
 
             ModelCandidato.CargoId = IdCargo;
-            ModelCandidato.PartidoId = Convert.ToInt32(IdPartido);
 
             res = await _client.PostAsync<object, Candidato>("api/Candidatos", ModelCandidato);
         }

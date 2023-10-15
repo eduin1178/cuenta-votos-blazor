@@ -198,7 +198,7 @@
         CargarMesas();
         await CargarResultados();
 
-        //await Conectar();
+        await Conectar();
     }
 
     protected async Task Conectar()
@@ -207,7 +207,10 @@
             .WithUrl(_navigation.ToAbsoluteUri("/Resultados/Noify"))
             .Build();
 
-        hubConnection.On("NotifyResult", async () => await CargarResultados());
+        hubConnection.On<string, int, int>("NotifyResult", async (user, idCargo, idPuesto) => {
+            _toaster.Success("Se ha registrado un nuevo resultado");            
+            await CargarResultados();
+        });
 
         await hubConnection.StartAsync();
 
