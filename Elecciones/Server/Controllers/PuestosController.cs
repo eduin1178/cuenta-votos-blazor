@@ -64,5 +64,13 @@ namespace Elecciones.Server.Controllers
             var res = _puestoRepository.RemoveTable(puestoId, mesaId);
             return Ok(res);
         }
+
+        [HttpGet("Acta/{idMesa}")]
+        public IActionResult UpdateUrlActa(int idMesa, string urlActa)
+        {
+            var res = _puestoRepository.UpdateUrlActa(idMesa, urlActa);
+            return Ok(res);
+        }
+
     }
 }

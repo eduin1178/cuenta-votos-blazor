@@ -24,8 +24,10 @@ namespace CuentaVotos.Storage
         public string Path { get; set; }
         public long Size { get; set; }
         public string HostName { get; set; }
+        public string Container { get; set; }
         public string Url => $"{HostName}{Path}";
         public Exception Exception { get; set; }
+        public string CDNUrlBase { get; set; }
     }
 
 

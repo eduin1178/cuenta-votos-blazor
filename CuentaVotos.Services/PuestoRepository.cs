@@ -173,8 +173,6 @@ namespace CuentaVotos.Services
 
                 _context.Puestos.Update(entity);
 
-
-
                 result.IsSuccess = true;
                 result.Message = "Datos del puesto de votación modificados correctamente";
             }
@@ -187,6 +185,7 @@ namespace CuentaVotos.Services
 
             return result;
         }
+
         public ModelResult<string> Delete(int puestoId)
         {
             var result = new ModelResult<string>();
@@ -282,6 +281,40 @@ namespace CuentaVotos.Services
             {
                 result.IsSuccess = false;
                 result.Message = "Error al eliminar la mesa";
+                result.Exception = ex;
+            }
+
+            return result;
+        }
+
+
+        public ModelResult<string> UpdateUrlActa(int idMesa, string urlActa)
+        {
+            var result = new ModelResult<string>();
+
+            try
+            {
+                var entity = _context.Mesas.FirstOrDefault(x => x.Id == idMesa);
+                if (entity == null)
+                {
+                    result.IsSuccess = false;
+                    result.Message = "Mesa no encontrada";
+
+                    return result;
+                }
+
+                entity.UrlE14 = urlActa;
+
+
+                _context.Mesas.Update(entity);
+
+                result.IsSuccess = true;
+                result.Message = "Acta registrada correctamente";
+            }
+            catch (Exception ex)
+            {
+                result.IsSuccess = false;
+                result.Message = "Error al cargar el acta";
                 result.Exception = ex;
             }
 

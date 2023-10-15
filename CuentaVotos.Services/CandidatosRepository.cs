@@ -96,7 +96,7 @@ namespace CuentaVotos.Services
                     Message = "Candidato no encontrado"
                 };
             }
-
+            entity.PartidoId = candidato.PartidoId;
             entity.Nombre = candidato.Nombre;
             entity.Numero = candidato.Numero;
             entity.FotoUrl = candidato.FotoUrl;

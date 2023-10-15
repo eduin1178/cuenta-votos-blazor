@@ -18,7 +18,6 @@
                                 foreach (var item in ListaCargos)
                                 {
                                     <option value="@item.Id">@item.Nombre</option>
-
                                 }
                             }
                             else
@@ -53,7 +52,6 @@
                                 foreach (var item in ListaPartidos)
                                 {
                                     <option value="@item.Id">@item.Nombre</option>
-
                                 }
                             }
                             else
@@ -101,7 +99,7 @@
                    .Where(x => x.PartidoId == IdPartido || IdPartido == -1)
                    .OrderBy(x => x.Numero).ToList())
                     {
-                        <div class="col-lg-6 col-xl-3 mb-2">
+                        <div class="col-lg-6 col-xl-4 mb-2">
                             <Card>
                                 <Header>
                                     <div class="float-end">
@@ -121,29 +119,33 @@
                                         @item.Numero
                                     </p>
 
-
                                 </Header>
                                 <Body>
 
                                     <div style="min-height:150px">
-
                                         <div class="row">
                                             <div class="col-6 text-center">
-                                                <img src="@item.FotoUrl" class="img-fluid" style="width:100px" />
+                                                @if (!string.IsNullOrEmpty(item.FotoUrl))
+                                                {
+                                                    <div class="text-center">
+
+                                                        <img src="@($"{_storageConfig.CDNUrlBase}/{item.FotoUrl}")"
+                                                             class="rounded-3" style="width:100px" />
+                                                    </div>
+                                                }
+                                                @item.Nombre
                                             </div>
                                             <div class="col-6">
-                                                <img src="@item.LogoPartido" class="img-thumbnail" style="width:100px" />
-                                                <br />
+                                                @if (!string.IsNullOrEmpty(item.LogoPartido))
+                                                {
+                                                    <div class="text-center">
+
+                                                        <img src="@($"{_storageConfig.CDNUrlBase}/{item.LogoPartido}")"
+                                                             class="rounded-3" style="width:100px" />
+                                                    </div>
+                                                    <br />
+                                                }
                                                 @item.Partido
-
-                                            </div>
-                                        </div>
-                                        <div class="row mt-3">
-                                            <div class="col">
-                                                <span class="h5">
-                                                    @item.Nombre
-                                                </span>
-
                                             </div>
                                         </div>
                                     </div>
@@ -213,18 +215,22 @@
 
             <div class="row mb-2">
                 <div class="col">
-                    <div class="input-group">
-                        <img src="@ModelPartido.LogoUrl" class="img-circle img-sm img-fluid" />
-                    </div>
+                    @if (!string.IsNullOrEmpty(ModelPartido.LogoUrl))
+                    {
+                        <div class="text-center">
+
+                            <img src="@($"{_storageConfig.CDNUrlBase}/{ModelPartido.LogoUrl}")"
+                                 class="rounded-3" style="max-width:150px" />
+                        </div>
+                    }
+
                 </div>
             </div>
             <div class="row mb-2">
                 <div class="col">
-                    <span>UrlLogo</span>
-                    <div class="input-group">
-                        <input type="string" class="form-control" @bind="ModelPartido.LogoUrl"
-                               placeholder="Url del logo" />
-                    </div>
+                    <FileUpload AutoUpload="false" FilePath="@_storageConfig.PircuresPath" Container="@_storageConfig.Container" MaxAllowedFiles="1"
+                                MaxFileSize="@_storageConfig.MaxFileSize"
+                                OnUploadSuccess="AlCargarLogoPartido" />
 
                 </div>
             </div>
@@ -290,15 +296,27 @@
                     <input type="text" class="form-control" @bind="ModelCandidato.Nombre" />
                 </div>
             </div>
+            @if (!string.IsNullOrEmpty(ModelCandidato.FotoUrl))
+            {
+                <div class="row mb-2">
+                    <div class="col">
+                        <div class="text-center">
+
+                            <img src="@($"{_storageConfig.CDNUrlBase}/{ModelCandidato.FotoUrl}")"
+                                 class="rounded-3" style="max-width:150px" />
+                        </div>
+
+                    </div>
+                </div>
+            }
             <div class="row mb-2">
                 <div class="col">
-                    <span>Foto</span>
-                    <input type="text" class="form-control"
-                           placeholder="Url de la foto"
-                    @bind="ModelCandidato.FotoUrl" />
+                    <FileUpload AutoUpload="false" FilePath="@_storageConfig.PircuresPath" Container="@_storageConfig.Container" MaxAllowedFiles="1"
+                                MaxFileSize="@_storageConfig.MaxFileSize"
+                                OnUploadSuccess="AlCargarFotoCandidato" />
+
                 </div>
             </div>
-
             <div class="row">
                 <div class="col">
                     @if (ModelPartido.Id != 0)
@@ -322,6 +340,7 @@
 @inject IToaster _toaster
 @inject SweetAlertService _swal
 @inject NavigationManager _navigation
+@inject StorageConfig _storageConfig
 
 @code {
 
@@ -496,8 +515,13 @@
         }
 
         await ModalPartido.CloseModal();
-
     }
+
+    protected void AlCargarLogoPartido(UploadResult result)
+    {
+        ModelPartido.LogoUrl = result.Path;
+    }
+
     #endregion
 
     #region Candidato
@@ -549,12 +573,7 @@
         var res = new ModelResult<object>();
         if (ModelCandidato.Id == 0)
         {
-            if (IdPartido == -1)
-            {
-                _toaster.Warning("Debe seleccionar el partido");
-                return;
-            }
-
+           
             ModelCandidato.CargoId = IdCargo;
 
             res = await _client.PostAsync<object, Candidato>("api/Candidatos", ModelCandidato);
@@ -606,6 +625,11 @@
 
         await ModalPartido.CloseModal();
 
+    }
+
+    protected void AlCargarFotoCandidato(UploadResult result)
+    {
+        ModelCandidato.FotoUrl = result.Path;
     }
     #endregion
 

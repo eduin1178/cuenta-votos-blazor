@@ -17,5 +17,6 @@ namespace CuentaVotos.Storage
         public string Password { get; set; }
         public string PasswordReadOnly { get; set; }
         public long FileSizeLimit { get; set; } = 1024;
+        public string CDNUrlBase { get; set; } 
     }
 }

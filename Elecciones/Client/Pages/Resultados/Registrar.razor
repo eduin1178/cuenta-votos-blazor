@@ -1,9 +1,9 @@
 ﻿@page "/Resultados/Registrar"
 @using Microsoft.AspNetCore.SignalR.Client;
-
+@inject StorageConfig _storageConfig
 <Card>
     <Header>
-        Registrar resultadosss
+        Registrar resultados
     </Header>
 
     <Body>
@@ -75,76 +75,96 @@
             </div>
         </div>
         <div class="row">
-            <ProgressBar Visible="_apiClient.Cargando" />
+            <div class="col-12">
+
+                <ProgressBar Visible="_apiClient.Cargando" />
+            </div>
         </div>
-        <div class="row mb-3">
-            <div class="col">
-                <div class="list-group">
+        <div class="row">
+            @if (Resultados != null)
+            {
 
-                    @if (Resultados != null)
-                    {
-                        @foreach (var resultado in Resultados)
-                        {
-                            <Card>
-                                <Header>
-                                    <button class="btn btn-link text-dark btn-sm float-end"
-                                    @onclick="(()=>resultado.ToggleExpandido())">
-                                        @if (resultado.Expandido)
-                                        {
-                                            <i class="oi oi-collapse-up"></i>
+                @foreach (var resultado in Resultados)
+                {
+                    <div class="col-lg-6 col-xl-4 col-md-12 col-sm-12 col-xs-12 mb-2">
 
-                                        }
-                                        else
-                                        {
-                                            <i class="oi oi-expand-down"></i>
-                                        }
-                                    </button>
-                                    <div class="flex-row d-flex align-items-center gap-3">
-                                        <img src="@resultado.LogoPartido" width="40" height="40" class="rounded-circle" />
-                                        <span class="h4 align-content-center">
-                                            <strong>
-                                                @resultado.NombrePartido
-                                            </strong>
-                                        </span>
-                                    </div>
-                                </Header>
-
-                                <Body>
+                        <Card>
+                            <Header>
+                                <button class="btn btn-link text-dark btn-sm float-end"
+                                @onclick="(()=>resultado.ToggleExpandido())">
                                     @if (resultado.Expandido)
                                     {
-                                        @foreach (var detalle in resultado.Detalles)
-                                        {
-                                            <div class="list-group-item">
-                                                <div class="flex-column d-flex align-items-baseline">
-                                                    <div class="flex-row d-flex align-items-center gap-3">
-                                                        <img src="@detalle.FotoCandidatoUrl" width="50" height="70"
-                                                             class="rounded-5" />
-                                                        <div class="row">
-                                                            <div class="col">
-                                                                <strong>
-                                                                    @detalle.Numero - @detalle.NombreCandidato
-                                                                </strong>
-                                                                <input type="number" class="form-control" placeholder="Votos"
-                                                                @bind="detalle.VotosCandidato" />
-                                                            </div>
+                                        <i class="oi oi-collapse-up"></i>
+
+                                    }
+                                    else
+                                    {
+                                        <i class="oi oi-expand-down"></i>
+                                    }
+                                </button>
+                                <div class="flex-row d-flex align-items-center gap-3">
+                                    <img src="@resultado.LogoPartido" width="40" height="40" class="rounded-circle" />
+                                    <span class="h4 align-content-center">
+                                        <strong>
+                                            @resultado.NombrePartido
+                                        </strong>
+                                    </span>
+                                </div>
+                            </Header>
+
+                            <Body>
+                                @if (resultado.Expandido)
+                                {
+                                    @foreach (var detalle in resultado.Detalles)
+                                    {
+                                        <div class="list-group-item">
+                                            <div class="flex-column d-flex align-items-baseline">
+                                                <div class="flex-row d-flex align-items-center gap-3">
+                                                    <img src="@detalle.FotoCandidatoUrl" width="50" height="70"
+                                                         class="rounded-5" />
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <strong>
+                                                                @detalle.Numero - @detalle.NombreCandidato
+                                                            </strong>
+                                                            <input type="number" class="form-control" placeholder="Votos"
+                                                            @bind="detalle.VotosCandidato" />
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        }
+                                        </div>
                                     }
-                                </Body>
-                            </Card>
-                        }
-                    }
+                                }
+                            </Body>
+                        </Card>
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="row mb-3">
+            <div class="d-flex">
+                <div class="col-lg-4">
+                    <button class="btn btn-success" title="Guardar datos"
+                    @onclick="Guardar">
+                        <i class="oi oi-check"></i> Guardar
+                    </button>
                 </div>
+
+                <div class="col-lg-8">
+                    <span>Cargar foto del formulario E14</span>
+
+                    <FileUpload AutoUpload="false" FilePath="@_storageConfig.PircuresPath" Container="@_storageConfig.Container" MaxAllowedFiles="1"
+                                MaxFileSize="@_storageConfig.MaxFileSize"
+                                OnUploadSuccess="AlCargarActa"/>
+
+                </div>
+
             </div>
+
         </div>
         <div class="row">
-            <button class="btn btn-success" title="Guardar datos"
-            @onclick="Guardar">
-                <i class="oi oi-check"></i> Guardar
-            </button>
         </div>
     </Body>
 </Card>
@@ -279,6 +299,19 @@
         {
             _toaster.Success("Datos guardados correctamente");
 
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+    }
+
+    protected async Task AlCargarActa(UploadResult result)
+    {
+        var res = await _apiClient.GetAsync<string>($"api/Puestos/Acta/{IdMesa}?urlActa={result.Path}");
+        if (res.IsSuccess)
+        {
+            _toaster.Success("Acta registrada correctamente");
         }
         else
         {

@@ -14,5 +14,6 @@ namespace CuentaVotos.Entities.Puestos
         public string Name { get; set; }
         public int PuestoId { get; set; }
         public int? UserId { get; set; }
+        public string UrlE14 { get; set; }
     }
 }

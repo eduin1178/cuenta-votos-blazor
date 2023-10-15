@@ -9,6 +9,7 @@ namespace CuentaVotos.Repository
         ModelResult<PuestoModel> One(int puestoId);
         ModelResult<string> Create(PuestoCreate model);
         ModelResult<string> Update(int puestoId, Puesto model);
+        ModelResult<string> UpdateUrlActa(int idMesa, string urlActa);
         ModelResult<string> Delete(int puestoId);
 
         ModelResult<PuestoModel> AddTable(int puestoId, Mesa model);

@@ -42,9 +42,12 @@ namespace CuentaVotos.Storage
                 }
 
                 res.IsSuccess = true;
-                res.Path = path;
+                res.Path = $"{request.Path}/{request.FileName}";
+                res.Container = request.StorageZone;
                 res.HostName = _config.HostName;
                 res.Size = request.File.Length;
+                res.CDNUrlBase = _config.CDNUrlBase;
+                
             }
             catch (Exception ex)
             {
