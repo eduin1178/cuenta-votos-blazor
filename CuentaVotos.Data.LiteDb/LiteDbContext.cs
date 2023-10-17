@@ -2,6 +2,7 @@
 using CuentaVotos.Entities.Account;
 using CuentaVotos.Entities.Procesos;
 using CuentaVotos.Entities.Resultados;
+using CuentaVotos.Entities;
 
 namespace CuentaVotos.Data.LiteDb
 {
@@ -41,8 +42,14 @@ namespace CuentaVotos.Data.LiteDb
             Resultados.ConfigureIndices(x=>x.Id, true);
             Resultados.ConfigureIndices(x=>x.Code, true);
             Resultados.ConfigureIndices("UX_Resultados", x=> new {x.IdPuesto, x.IdMesa, x.IdPartido, x.IdCargo }, true);
+
+            Procesos = new LiteDbSet<Proceso>(InternalDatabase);
+            Procesos.ConfigureIndices(x=>x.Id, true);
+            Procesos.ConfigureIndices(x=>x.Code, true);
+
         }
 
+        public readonly LiteDbSet<Proceso> Procesos;
         public readonly LiteDbSet<User> Users;
         public readonly LiteDbSet<Puesto> Puestos;
         public readonly LiteDbSet<Mesa> Mesas;

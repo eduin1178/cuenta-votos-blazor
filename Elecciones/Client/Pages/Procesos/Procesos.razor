@@ -1,0 +1,89 @@
+﻿@page "/Procesos"
+
+<Card>
+
+    <Header>
+        Proceso Electoral
+    </Header>
+    <Body>
+        @if (Datos != null)
+        {
+
+            <EditForm Model="Datos" OnSubmit="Guardar">
+                <div class="row mb-2">
+                    <div class="col-12">
+                        <span>Inicia</span>
+                        <input type="datetime-local" @bind="Datos.Inicia" class="form-control" />
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-12">
+                        <span>Termina</span>
+                        <input type="datetime-local" @bind="Datos.Termina" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <button class="btn btn-success"
+                                type="submit">
+                            <i class="oi oi-check"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+            </EditForm>
+        }
+        else
+        {
+            <p>Cargando...</p>
+        }
+    </Body>
+</Card>
+
+@inject ApiClient _apiClient
+@inject IToaster _toaster
+@code {
+
+    public Proceso Datos { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var res = await _apiClient.GetAsync<Proceso>("api/Procesos/1");
+        if (res.IsSuccess)
+        {
+            if (res.Model == null)
+            {
+                Datos = new Proceso
+                    {
+                        Inicia = DateTime.Now,
+                        Termina = DateTime.Now.AddHours(4)
+                    };
+            }
+            else
+            {
+                Datos = res.Model;
+            }
+        }
+        else
+        {
+            Datos = new Proceso
+                {
+                    Inicia = DateTime.Now,
+                    Termina = DateTime.Now.AddHours(4)
+                };
+        }
+    }
+
+    protected async Task Guardar()
+    {
+        var res = await _apiClient.PostAsync<string, Proceso>("api/Procesos", Datos);
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+    }
+}

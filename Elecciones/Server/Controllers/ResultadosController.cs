@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using System.Text;
 
 namespace Elecciones.Server.Controllers
 {
@@ -38,7 +39,7 @@ namespace Elecciones.Server.Controllers
             var res = _resultadosRepository.Guardar(userCode, idPuesto, idMesa, idCargo, resultados);
             if (res.IsSuccess)
             {
-               await _notifyResultHub.Clients.All.SendAsync("NotifyResult", userCode, idCargo, idPuesto);
+                await _notifyResultHub.Clients.All.SendAsync("NotifyResult", userCode, idCargo, idPuesto);
             }
             return Ok(res);
         }
@@ -60,6 +61,14 @@ namespace Elecciones.Server.Controllers
                 await _notifyResultHub.Clients.All.SendAsync("NotifyResult", userCode, idCargo, idPuesto);
             }
             return Ok(res);
+        }
+
+        [HttpGet("Reporte/{idCargo}/{idPuesto}/{idMesa}")]
+        public IActionResult Reporte(int idCargo, int idPuesto, int idMesa)
+        {
+            var res = _resultadosRepository.Reporte(idCargo, idPuesto, idMesa);
+                return Ok(res);
+
         }
     }
 }

@@ -1,14 +1,21 @@
 ﻿@page "/Resultados/Consolidado"
 @using Microsoft.AspNetCore.SignalR.Client;
+@using System.Text;
 
 <PageTitle>Resultados</PageTitle>
 <Card>
     <Header>
-        <button class="btn btn-sm btn-outline-secondary float-end"
-        @onclick="CargarResultados">
-            <i class="oi oi-reload"></i> Actualizar
-        </button>
-        <h4>Resultados</h4>
+        <div class="float-end">
+            <button class="btn btn-sm btn-outline-info mr-2"
+            @onclick="DescargarReporte">
+                <i class="oi oi-cloud-download"></i> Descargar
+            </button>
+            <button class="btn btn-sm btn-outline-secondary"
+            @onclick="CargarResultados">
+                <i class="oi oi-reload"></i> Actualizar
+            </button>
+        </div>
+            <h4>Resultados</h4>
     </Header>
 
     <Body>
@@ -130,19 +137,19 @@
 
 
                                         <div class="mb-1">
-                                            
-                                                <img src="@($"{_storageConfig.CDNUrlBase}/{detalle.FotoCandidatoUrl}")" style="max-width:50px; max-height:100px;"
-                                                     class="rounded-5 g-col-2" />
-                                                <h1 class="float-end">
-                                                    @detalle.VotosCandidato
-                                                </h1>
+
+                                            <img src="@($"{_storageConfig.CDNUrlBase}/{detalle.FotoCandidatoUrl}")" style="max-width:50px; max-height:100px;"
+                                                 class="rounded-5 g-col-2" />
+                                            <h1 class="float-end">
+                                                @detalle.VotosCandidato
+                                            </h1>
                                             <div>
                                                 @detalle.NombreCandidato
                                             </div>
 
                                         </div>
                                         <ResultBar Parcial="@detalle.VotosCandidato"
-                                        Total="@Total" Color="@resultado.ColorPartido" />
+                                                   Total="@Total" Color="@resultado.ColorPartido" />
 
 
                                     }
@@ -181,6 +188,7 @@
 @inject NavigationManager _navigation
 @inject SweetAlertService _swall
 @inject StorageConfig _storageConfig
+@inject IBlazorDownloadFileService _downloadFile
 @code {
     protected override void OnInitialized()
     {
@@ -331,4 +339,30 @@
             _toaster.Error(res.Message);
         }
     }
+
+    protected async Task DescargarReporte()
+    {
+
+        var reporte = new List<ReporteResultadosModel>();
+        var res = await _apiClient.GetAsync<List<ReporteResultadosModel>>($"api/Resultados/Reporte/{IdCargo}/{IdPuesto}/{IdMesa}");
+        if (!res.IsSuccess)
+        {
+            _toaster.Error(res.Message);
+            return;
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("Partido;Candidato;Puesto;Mesa;Votos;Testigo;Registro");
+        foreach (var item in res.Model)
+        {
+            sb.AppendLine($"{item.Partido};{item.Candidato};{item.Puesto};{item.Mesa};{item.Votos};{item.Testigo};{item.Registro}");
+        }
+
+        var bytes = Encoding.UTF8.GetBytes(sb.ToString());
+        var stream = new MemoryStream(bytes);
+
+        await _downloadFile.DownloadFile("Reporte.csv", stream, "application/csv");
+
+    }
+
 }

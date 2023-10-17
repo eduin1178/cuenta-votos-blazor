@@ -233,5 +233,57 @@ namespace CuentaVotos.Services
             return res;
         }
 
+        public ModelResult<List<ReporteResultadosModel>> Reporte(int idCargo, int idPuesto, int idMesa)
+        {
+            var res = new ModelResult<List<ReporteResultadosModel>>();
+
+            var puestos = _context.Puestos.AsEnumerable().ToList();
+            var mesas = _context.Mesas.AsEnumerable().ToList();
+
+            var candidatos = _context.Candidatos
+               .Where(x => x.CargoId == idCargo)
+               .ToList();
+
+            var partidos = _context.Partidos.AsEnumerable()
+                .Where(x => candidatos.Any(y => y.PartidoId == x.Id))
+                .ToList();
+
+            var usuarios = _context.Users.AsEnumerable()
+                .ToList();
+
+            var query = _context.Resultados
+                .Where(x => x.IdCargo == idCargo
+                && (x.IdPuesto == idPuesto || idPuesto == 0)
+                && (x.IdMesa == idMesa || idMesa == 0)).ToList();
+
+            var reporte = new List<ReporteResultadosModel>();
+
+            foreach (var item in query)
+            {
+                var user = usuarios.FirstOrDefault(x => x.Id == item.IdUsuarioRegistro);
+                foreach (var subitem in item.Detalles)
+                {
+                    var report = new ReporteResultadosModel
+                    {
+                        Partido = partidos.FirstOrDefault(x => x.Id == item.IdPartido)?.Nombre,
+                        Candidato = candidatos.FirstOrDefault(x => x.Id == subitem.IdCantidato)?.Nombre,
+                        Puesto = puestos.FirstOrDefault(x=>x.Id == item.IdPuesto)?.Name,
+                        Mesa = mesas.FirstOrDefault(x=>x.Id == item.IdMesa)?.Name,
+                        Votos = subitem.VotosCandidato,
+                        Testigo = user?.FirstName + " " + user?.LastName,
+                        Registro = item.Registrado
+                    };
+
+                    reporte.Add(report);
+                }
+            }
+
+            res.IsSuccess = true;
+            res.Message = "OK";
+            res.Count = reporte.Count;
+            res.Model = reporte;
+            return res;
+        }
+
     }
 }

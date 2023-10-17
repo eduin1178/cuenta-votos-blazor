@@ -11,5 +11,8 @@ namespace CuentaVotos.Repository
         ModelResult<List<ResultadoGeneralModel>> Resultados(int idCargo, int idPuesto, int idMesa);
 
         ModelResult<object> EliminarResultados(int idCargo, int idPuesto);
+
+        ModelResult<List<ReporteResultadosModel>> Reporte(int idCargo, int idPuesto, int idMesa);
+
     }
 }

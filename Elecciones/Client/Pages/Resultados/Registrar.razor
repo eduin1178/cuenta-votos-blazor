@@ -7,164 +7,184 @@
     </Header>
 
     <Body>
-        <div class="row mb-3">
-            <div class="col-lg-4">
-                <label>Cargo</label>
-                <select class="form-select" value="@IdCargo" @onchange="AlCambiarCargo">
-                    @if (ListaCargos != null)
-                    {
-                        if (ListaCargos.Count > 0)
-                        {
-                            foreach (var item in ListaCargos)
-                            {
-                                <option value="@item.Id">@item.Nombre</option>
 
-                            }
-                        }
-                        else
-                        {
-                            <option>No hay cargos</option>
-                        }
-                    }
-                    else
-                    {
-                        <option value="0">Cargando...</option>
-                    }
-                </select>
-            </div>
-            <div class="col-lg-4">
-                <label>Puesto</label>
-                <select class="form-select" value="@IdPuesto" @onchange="AlCambiarPuesto">
-                    @if (Puestos == null)
-                    {
-                        <option>Cargando...</option>
-                    }
-                    else
-                    {
-                        @foreach (var puesto in Puestos)
-                        {
-                            <option value="@puesto.Id">@puesto.Name</option>
-                        }
-                    }
-                </select>
-            </div>
-            <div class="col-lg-4">
-                <label>Mesa</label>
-                <select class="form-select" value="@IdMesa" @onchange="AlCambiarMesa">
-                    @if (Puestos == null)
-                    {
-                        <option>Cargando...</option>
-                    }
-                    else
-                    {
-                        if (IdPuesto == 0)
-                        {
-                            <option>Cargando...</option>
-                        }
-                        else
-                        {
-                            @foreach (var mesa in Puestos.FirstOrDefault(x => x.Id == IdPuesto).ListaMesas.OrderBy(x =>
-                           x.Number).ToList())
-                            {
-                                <option value="@mesa.Id">@mesa.Name</option>
-                            }
-                        }
-                    }
-                </select>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-
-                <ProgressBar Visible="_apiClient.Cargando" />
-            </div>
-        </div>
-        <div class="row">
-            @if (Resultados != null)
+        @if (Proceso == null)
+        {
+            <p>No se ha creado el proceso electoral</p>
+        }
+        else
+        {
+            if (!Proceso.Abierto)
             {
+                <div class="alert alert-info">
 
-                @foreach (var resultado in Resultados)
-                {
-                    <div class="col-lg-6 col-xl-4 col-md-12 col-sm-12 col-xs-12 mb-2">
-
-                        <Card>
-                            <Header>
-                                <button class="btn btn-link text-dark btn-sm float-end"
-                                @onclick="(()=>resultado.ToggleExpandido())">
-                                    @if (resultado.Expandido)
-                                    {
-                                        <i class="oi oi-collapse-up"></i>
-
-                                    }
-                                    else
-                                    {
-                                        <i class="oi oi-expand-down"></i>
-                                    }
-                                </button>
-                                <div class="flex-row d-flex align-items-center gap-3">
-                                    <img src="@($"{_storageConfig.CDNUrlBase}/{resultado.LogoPartido}")" width="40" height="40" class="rounded-circle" />
-                                    <span class="h4 align-content-center">
-                                        <strong>
-                                            @resultado.NombrePartido
-                                        </strong>
-                                    </span>
-                                </div>
-                            </Header>
-
-                            <Body>
-                                @if (resultado.Expandido)
+                <h5>
+                    <i class="oi oi-info"></i>
+                    El proceso se encuentra cerrado para el registro</h5>
+                <p>El proceso de registro estará abierto entre  <strong> @Proceso.Inicia y @Proceso.Termina </strong></p>
+                </div>
+            }
+            else
+            {
+                <div class="row mb-3">
+                    <div class="col-lg-4">
+                        <label>Cargo</label>
+                        <select class="form-select" value="@IdCargo" @onchange="AlCambiarCargo">
+                            @if (ListaCargos != null)
+                            {
+                                if (ListaCargos.Count > 0)
                                 {
-                                    @foreach (var detalle in resultado.Detalles)
+                                    foreach (var item in ListaCargos)
                                     {
-                                        <div class="list-group-item">
-                                            <div class="flex-column d-flex align-items-baseline">
-                                                <div class="flex-row d-flex align-items-center gap-3">
-                                                    <img src="@($"{_storageConfig.CDNUrlBase}/{@detalle.FotoCandidatoUrl}")" width="50" height="70" class="rounded-5" />
-                                                    <div class="row">
-                                                        <div class="col">
-                                                            <strong>
-                                                                @detalle.Numero - @detalle.NombreCandidato
-                                                            </strong>
-                                                            <input type="number" class="form-control" placeholder="Votos"
-                                                            @bind="detalle.VotosCandidato" />
+                                        <option value="@item.Id">@item.Nombre</option>
+
+                                    }
+                                }
+                                else
+                                {
+                                    <option>No hay cargos</option>
+                                }
+                            }
+                            else
+                            {
+                                <option value="0">Cargando...</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-lg-4">
+                        <label>Puesto</label>
+                        <select class="form-select" value="@IdPuesto" @onchange="AlCambiarPuesto">
+                            @if (Puestos == null)
+                            {
+                                <option>Cargando...</option>
+                            }
+                            else
+                            {
+                                @foreach (var puesto in Puestos)
+                                {
+                                    <option value="@puesto.Id">@puesto.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-lg-4">
+                        <label>Mesa</label>
+                        <select class="form-select" value="@IdMesa" @onchange="AlCambiarMesa">
+                            @if (Puestos == null)
+                            {
+                                <option>Cargando...</option>
+                            }
+                            else
+                            {
+                                if (IdPuesto == 0)
+                                {
+                                    <option>Cargando...</option>
+                                }
+                                else
+                                {
+                                    @foreach (var mesa in Puestos.FirstOrDefault(x => x.Id == IdPuesto).ListaMesas.OrderBy(x =>
+                                   x.Number).ToList())
+                                    {
+                                        <option value="@mesa.Id">@mesa.Name</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+
+                        <ProgressBar Visible="_apiClient.Cargando" />
+                    </div>
+                </div>
+                <div class="row">
+                    @if (Resultados != null)
+                    {
+
+                        @foreach (var resultado in Resultados)
+                        {
+                            <div class="col-lg-6 col-xl-4 col-md-12 col-sm-12 col-xs-12 mb-2">
+
+                                <Card>
+                                    <Header>
+                                        <button class="btn btn-link text-dark btn-sm float-end"
+                                        @onclick="(()=>resultado.ToggleExpandido())">
+                                            @if (resultado.Expandido)
+                                            {
+                                                <i class="oi oi-collapse-up"></i>
+
+                                            }
+                                            else
+                                            {
+                                                <i class="oi oi-expand-down"></i>
+                                            }
+                                        </button>
+                                        <div class="flex-row d-flex align-items-center gap-3">
+                                            <img src="@($"{_storageConfig.CDNUrlBase}/{resultado.LogoPartido}")" width="40" height="40" />
+                                            <span class="align-content-center">
+                                                <strong>
+                                                    @resultado.NombrePartido
+                                                </strong>
+                                            </span>
+                                        </div>
+                                    </Header>
+
+                                    <Body>
+                                        @if (resultado.Expandido)
+                                        {
+                                            @foreach (var detalle in resultado.Detalles)
+                                            {
+                                                <div class="flex-column d-flex align-items-baseline">
+                                                    <div class="flex-row d-flex align-items-center gap-3">
+                                                        <img src="@($"{_storageConfig.CDNUrlBase}/{@detalle.FotoCandidatoUrl}")" width="50" height="70" class="rounded-5" />
+                                                        <div class="row">
+                                                            <div class="col">
+                                                                <strong>
+                                                                    @detalle.NombreCandidato
+                                                                </strong>
+                                                                <input type="number" class="form-control" placeholder="Votos"
+                                                                @bind="detalle.VotosCandidato" />
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    }
-                                }
-                            </Body>
-                        </Card>
+                                            }
+                                        }
+                                    </Body>
+                                </Card>
+                            </div>
+                        }
+                    }
+                </div>
+                @if (IdPuesto != 0 && IdMesa != 0 && IdCargo != 0)
+                {
+
+                    <div class="row mb-3">
+                        <div class="d-flex">
+                            <div class="col-lg-4">
+                                <button class="btn btn-success" title="Guardar datos" @onclick="Guardar">
+                                    <i class="oi oi-check"></i> Guardar
+                                </button>
+                            </div>
+
+                            <div class="col-lg-8">
+                                <span>Cargar foto del formulario E14</span>
+
+                                <FileUpload AutoUpload="false" FilePath="@_storageConfig.PircuresPath"
+                                            Container="@_storageConfig.Container" MaxAllowedFiles="1"
+                                            MaxFileSize="@_storageConfig.MaxFileSize" OnUploadSuccess="AlCargarActa" />
+
+                            </div>
+
+                        </div>
+
                     </div>
+
                 }
             }
-        </div>
-        @if (IdPuesto != 0 && IdMesa != 0 && IdCargo != 0)
-        {
-
-            <div class="row mb-3">
-                <div class="d-flex">
-                    <div class="col-lg-4">
-                        <button class="btn btn-success" title="Guardar datos" @onclick="Guardar">
-                            <i class="oi oi-check"></i> Guardar
-                        </button>
-                    </div>
-
-                    <div class="col-lg-8">
-                        <span>Cargar foto del formulario E14</span>
-
-                        <FileUpload AutoUpload="false" FilePath="@_storageConfig.PircuresPath"
-                                    Container="@_storageConfig.Container" MaxAllowedFiles="1"
-                                    MaxFileSize="@_storageConfig.MaxFileSize" OnUploadSuccess="AlCargarActa" />
-
-                    </div>
-
-                </div>
-
-            </div>
-
         }
+
     </Body>
 </Card>
 
@@ -183,10 +203,27 @@
     }
     protected override async Task OnInitializedAsync()
     {
+        await CargarProceso();
         await CargarCargos();
         await CargarPuestos();
         CargarMesas();
         await CargarResultados();
+    }
+
+    public Proceso Proceso { get; set; }
+
+    protected async Task CargarProceso()
+    {
+        var res = await _apiClient.GetAsync<Proceso>("api/Procesos/1");
+        if (res.IsSuccess)
+        {
+            Proceso = res.Model;
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+
+        }
     }
 
     public List<PuestoModel> Puestos { get; set; }

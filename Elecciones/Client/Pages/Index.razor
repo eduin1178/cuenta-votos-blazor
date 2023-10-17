@@ -23,12 +23,10 @@
 </div>
 <Consolidado/>
 
-
 @inject StorageConfig _storageConfig
 @code {
-
-    private void OnUploadSuccess(UploadResult result)
+    protected override Task OnInitializedAsync()
     {
-        Console.WriteLine(result.Url);
-    }
+        return base.OnInitializedAsync();
+    }   
 }

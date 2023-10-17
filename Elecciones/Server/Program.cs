@@ -82,6 +82,7 @@ namespace Elecciones
             builder.Services.AddTransient<IPartidosRepository, PartidosRespository>();
             builder.Services.AddTransient<ICandidatosRepository, CandidatosRepository>();
             builder.Services.AddTransient<IResultadosRepository, ResultadosRepository>();
+            builder.Services.AddTransient<IProcesoRespository, ProcesoRespository>();
             builder.Services.AddScoped<NotifyResultHub>();
 
             builder.Services.AddTransient<ICuentaVotosStorage, BunnyStorage>();

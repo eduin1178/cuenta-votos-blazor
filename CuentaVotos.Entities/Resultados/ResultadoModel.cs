@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -54,5 +55,16 @@ namespace CuentaVotos.Entities.Resultados
         public int? Numero { get; set; }
         public string FotoCandidatoUrl { get; set; }
         public int VotosCandidato { get; set; }
+    }
+
+    public class ReporteResultadosModel
+    {
+        public string Partido { get; set; }
+        public string Candidato { get; set; }
+        public string Puesto { get; set; }
+        public string Mesa { get; set; }
+        public int Votos { get; set; }
+        public string Testigo { get; set; }
+        public DateTime Registro { get; set; }
     }
 }
