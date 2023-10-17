@@ -1,5 +1,4 @@
-﻿
-@inject FiltrosState Filtros
+﻿@inject FiltrosState Filtros
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -12,43 +11,46 @@
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
-        <div class="nav-item px-3">
+        <div class="nav-item">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Inicio
             </NavLink>
         </div>
+
         <AuthorizeView Roles="0">
             <Authorized>
-                <div class="nav-item px-3">
+                <div class="nav-item">
                     <NavLink class="nav-link" href="Admin/Users">
-                        <span class="oi oi-list-rich" aria-hidden="true"></span> Usuarios
+                        <span class="oi oi-people" aria-hidden="true"></span> Usuarios
                     </NavLink>
-                </div>      
-                <div class="nav-item px-3">
+                </div>
+                <div class="nav-item">
                     <NavLink class="nav-link" href="Admin/Puestos">
-                        <span class="oi oi-list-rich" aria-hidden="true"></span> Puestos
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Puestos y mesas
                     </NavLink>
                 </div>
-                <div class="nav-item px-3">
+                <div class="nav-item">
                     <NavLink class="nav-link" href="Admin/Candidatos">
-                        <span class="oi oi-list-rich" aria-hidden="true"></span> Candidatos
+                        <span class="oi oi-flag" aria-hidden="true"></span> Partidos y Candidatos
                     </NavLink>
                 </div>
-                <div class="nav-item px-3">
+                <div class="nav-item">
                     <NavLink class="nav-link" href="Resultados/Registrar">
-                        <span class="oi oi-list-rich" aria-hidden="true"></span> Registrar Resultados
+                        <span class="oi oi-box" aria-hidden="true"></span> Registrar
                     </NavLink>
                 </div>
-                <div class="nav-item px-3">
+                <div class="nav-item">
                     <NavLink class="nav-link" href="Resultados/Consolidado">
-                        <span class="oi oi-list-rich" aria-hidden="true"></span> Resultados
+                        <span class="oi oi-bar-chart" aria-hidden="true"></span> Resultados
                     </NavLink>
                 </div>
             </Authorized>
+
         </AuthorizeView>
     </nav>
-</div>
 
+
+</div>
 @code {
     private bool collapseNavMenu = true;
 
@@ -58,4 +60,5 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
 }

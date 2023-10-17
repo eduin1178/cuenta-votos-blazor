@@ -67,7 +67,7 @@ namespace CuentaVotos.Services
             {
                 IsSuccess = true,
                 Message = "OK",
-                Model = model,
+                Model = model.OrderBy(x=>x.Detalles.Max(x=>x.Numero)).ToList(),
                 Count = model.Count,
                 Code = 1,
             };
@@ -87,7 +87,7 @@ namespace CuentaVotos.Services
 
             foreach (var resultado in resultados)
             {
-               
+
 
                 var entity = entities.FirstOrDefault(x => x.IdPartido == resultado.IdPartido);
                 if (entity == null)
@@ -125,7 +125,7 @@ namespace CuentaVotos.Services
 
                     _context.Resultados.Update(entity);
                 }
-                
+
             }
 
             return new ModelResult<string>
@@ -152,7 +152,7 @@ namespace CuentaVotos.Services
             var query = _context.Resultados
                 .Where(x => x.IdCargo == idCargo
                 && (x.IdPuesto == idPuesto || idPuesto == 0)
-                && (x.IdMesa == idMesa  || idMesa == 0))
+                && (x.IdMesa == idMesa || idMesa == 0))
                 .GroupBy(x => new { x.IdCargo, x.IdPartido })
                 .Select(x => new ResultadoGeneralModel
                 {
@@ -171,7 +171,6 @@ namespace CuentaVotos.Services
                         VotosCandidato = x.Sum(x => x.VotosCandidato),
                     }).OrderByDescending(x => x.VotosCandidato).ToList(),
                 })
-                .OrderByDescending(x => x.VotosCandidato)
                 .ToList();
 
 
@@ -185,7 +184,7 @@ namespace CuentaVotos.Services
                     LogoPartido = partido.LogoUrl,
                     ColorPartido = partido.Color,
                     Detalles = new List<DetallesResultadoModel>(),
-                    
+
                 };
 
                 foreach (var candidato in candidatos.Where(x => x.PartidoId == partido.Id))
@@ -203,12 +202,34 @@ namespace CuentaVotos.Services
 
                 model.Add(item);
             }
-          
+
 
             res.IsSuccess = true;
             res.Message = "OK";
             res.Count = model.Count;
-            res.Model = model;
+            res.Model = model.OrderByDescending(x => x.VotosCandidato)
+                .ThenBy(x => x.Detalles.Max(x => x.Numero))
+                .ToList();
+            return res;
+        }
+
+        public ModelResult<object> EliminarResultados(int idCargo, int idPuesto)
+        {
+            var res = new ModelResult<object>();
+
+            try
+            {
+                _context.Resultados.DeleteByExp(x => x.IdCargo == idCargo && x.IdPuesto == idPuesto);
+                res.IsSuccess = true;
+                res.Message = "Resultados eliminados correctamente";
+            }
+            catch (Exception ex)
+            {
+                res.IsSuccess = false;
+                res.Message = "Error al eliminar los resultados";
+                res.Exception = ex;
+            }
+
             return res;
         }
 

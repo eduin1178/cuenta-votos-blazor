@@ -2,15 +2,14 @@
 <AuthorizeView>
     <Authorized>
         <div class="nav  d-flex align-items-center justify-content-center align-content-end">
-            <apan class="oi oi-person"></apan>
-            <a href="/Account/Profile" class="nav-link">
+            <NavLink href="/Account/Profile" class="nav-link">
+                <apan class="oi oi-person"></apan>
                 <span class="text-dark nav-item"
                       title="@context.User.Claims.FirstOrDefault(x=>x.Type==ClaimTypes.Email)?.Value">
-                    @* @context.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value *@
-                    @_appState?.Profile?.FirstName
+                    @_appState?.Profile?.FirstName @_appState.Profile.LastName
                 </span>
-            </a>
-           
+            </NavLink>
+
             <a @onclick="Logout" href="javascript:void(0);" class="nav-link text-dark">
                 Salir
             </a>

@@ -9,5 +9,7 @@ namespace CuentaVotos.Repository
         ModelResult<string> Guardar(string userCode, int idPuesto, int idMesa, int idCargo, List<ResultadoModel> resultados);
 
         ModelResult<List<ResultadoGeneralModel>> Resultados(int idCargo, int idPuesto, int idMesa);
+
+        ModelResult<object> EliminarResultados(int idCargo, int idPuesto);
     }
 }

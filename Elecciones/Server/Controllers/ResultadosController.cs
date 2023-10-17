@@ -1,4 +1,5 @@
-﻿using CuentaVotos.Entities.Resultados;
+﻿using CuentaVotos.Entities.Account;
+using CuentaVotos.Entities.Resultados;
 using CuentaVotos.Entities.Shared;
 using CuentaVotos.Repository;
 using Elecciones.Server.Hubs;
@@ -46,6 +47,18 @@ namespace Elecciones.Server.Controllers
         public IActionResult Resultados(int idCargo, int idPuesto, int idMesa)
         {
             var res = _resultadosRepository.Resultados(idCargo, idPuesto, idMesa);
+            return Ok(res);
+        }
+
+        [HttpDelete("{idCargo}/{idPuesto}")]
+        public async Task<IActionResult> EliminarResultados(int idCargo, int idPuesto)
+        {
+            var userCode = User.Identity.Name;
+            var res = _resultadosRepository.EliminarResultados(idCargo, idPuesto);
+            if (res.IsSuccess)
+            {
+                await _notifyResultHub.Clients.All.SendAsync("NotifyResult", userCode, idCargo, idPuesto);
+            }
             return Ok(res);
         }
     }

@@ -9,47 +9,6 @@
     <Body>
         <div class="row mb-3">
             <div class="col-lg-4">
-                <label>Puesto</label>
-                <select class="form-select" value="@IdPuesto"
-                @onchange="AlCambiarPuesto">
-                    @if (Puestos == null)
-                    {
-                        <option>Cargando...</option>
-                    }
-                    else
-                    {
-                        @foreach (var puesto in Puestos)
-                        {
-                            <option value="@puesto.Id">@puesto.Name</option>
-                        }
-                    }
-                </select>
-            </div>
-            <div class="col-lg-4">
-                <label>Mesa</label>
-                <select class="form-select" value="@IdMesa"
-                @onchange="AlCambiarMesa">
-                    @if (Puestos == null)
-                    {
-                        <option>Cargando...</option>
-                    }
-                    else
-                    {
-                        if (IdPuesto == 0)
-                        {
-                            <option>Cargando...</option>
-                        }
-                        else
-                        {
-                            @foreach (var mesa in Puestos.FirstOrDefault(x => x.Id == IdPuesto).ListaMesas.OrderBy(x => x.Number).ToList())
-                            {
-                                <option value="@mesa.Id">@mesa.Name</option>
-                            }
-                        }
-                    }
-                </select>
-            </div>
-            <div class="col-lg-4">
                 <label>Cargo</label>
                 <select class="form-select" value="@IdCargo" @onchange="AlCambiarCargo">
                     @if (ListaCargos != null)
@@ -70,6 +29,46 @@
                     else
                     {
                         <option value="0">Cargando...</option>
+                    }
+                </select>
+            </div>
+            <div class="col-lg-4">
+                <label>Puesto</label>
+                <select class="form-select" value="@IdPuesto" @onchange="AlCambiarPuesto">
+                    @if (Puestos == null)
+                    {
+                        <option>Cargando...</option>
+                    }
+                    else
+                    {
+                        @foreach (var puesto in Puestos)
+                        {
+                            <option value="@puesto.Id">@puesto.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-lg-4">
+                <label>Mesa</label>
+                <select class="form-select" value="@IdMesa" @onchange="AlCambiarMesa">
+                    @if (Puestos == null)
+                    {
+                        <option>Cargando...</option>
+                    }
+                    else
+                    {
+                        if (IdPuesto == 0)
+                        {
+                            <option>Cargando...</option>
+                        }
+                        else
+                        {
+                            @foreach (var mesa in Puestos.FirstOrDefault(x => x.Id == IdPuesto).ListaMesas.OrderBy(x =>
+                           x.Number).ToList())
+                            {
+                                <option value="@mesa.Id">@mesa.Name</option>
+                            }
+                        }
                     }
                 </select>
             </div>
@@ -103,7 +102,7 @@
                                     }
                                 </button>
                                 <div class="flex-row d-flex align-items-center gap-3">
-                                    <img src="@resultado.LogoPartido" width="40" height="40" class="rounded-circle" />
+                                    <img src="@($"{_storageConfig.CDNUrlBase}/{resultado.LogoPartido}")" width="40" height="40" class="rounded-circle" />
                                     <span class="h4 align-content-center">
                                         <strong>
                                             @resultado.NombrePartido
@@ -120,8 +119,7 @@
                                         <div class="list-group-item">
                                             <div class="flex-column d-flex align-items-baseline">
                                                 <div class="flex-row d-flex align-items-center gap-3">
-                                                    <img src="@detalle.FotoCandidatoUrl" width="50" height="70"
-                                                         class="rounded-5" />
+                                                    <img src="@($"{_storageConfig.CDNUrlBase}/{@detalle.FotoCandidatoUrl}")" width="50" height="70" class="rounded-5" />
                                                     <div class="row">
                                                         <div class="col">
                                                             <strong>
@@ -142,30 +140,31 @@
                 }
             }
         </div>
+        @if (IdPuesto != 0 && IdMesa != 0 && IdCargo != 0)
+        {
 
-        <div class="row mb-3">
-            <div class="d-flex">
-                <div class="col-lg-4">
-                    <button class="btn btn-success" title="Guardar datos"
-                    @onclick="Guardar">
-                        <i class="oi oi-check"></i> Guardar
-                    </button>
-                </div>
+            <div class="row mb-3">
+                <div class="d-flex">
+                    <div class="col-lg-4">
+                        <button class="btn btn-success" title="Guardar datos" @onclick="Guardar">
+                            <i class="oi oi-check"></i> Guardar
+                        </button>
+                    </div>
 
-                <div class="col-lg-8">
-                    <span>Cargar foto del formulario E14</span>
+                    <div class="col-lg-8">
+                        <span>Cargar foto del formulario E14</span>
 
-                    <FileUpload AutoUpload="false" FilePath="@_storageConfig.PircuresPath" Container="@_storageConfig.Container" MaxAllowedFiles="1"
-                                MaxFileSize="@_storageConfig.MaxFileSize"
-                                OnUploadSuccess="AlCargarActa"/>
+                        <FileUpload AutoUpload="false" FilePath="@_storageConfig.PircuresPath"
+                                    Container="@_storageConfig.Container" MaxAllowedFiles="1"
+                                    MaxFileSize="@_storageConfig.MaxFileSize" OnUploadSuccess="AlCargarActa" />
+
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
-        <div class="row">
-        </div>
+        }
     </Body>
 </Card>
 
@@ -178,13 +177,10 @@
     {
         _apiClient.OnChange += StateHasChanged;
     }
-
     public void Dispose()
     {
         _apiClient.OnChange -= StateHasChanged;
     }
-
-
     protected override async Task OnInitializedAsync()
     {
         await CargarCargos();
@@ -294,7 +290,25 @@
 
     protected async Task Guardar()
     {
-        var res = await _apiClient.PostAsync<object, List<ResultadoModel>>($"api/Resultados/{IdPuesto}/{IdMesa}/{IdCargo}", Resultados);
+        if (IdCargo == 0)
+        {
+            _toaster.Error("Debe seleccionar el cargo");
+            return;
+        }
+
+        if (IdPuesto == 0)
+        {
+            _toaster.Error("Debe seleccionar un puesto de votación");
+            return;
+        }
+        if (IdMesa == 0)
+        {
+            _toaster.Error("Debe seleccionar una mesa de votación");
+            return;
+        }
+
+        var res = await _apiClient.PostAsync<object, List<ResultadoModel>>($"api/Resultados/{IdPuesto}/{IdMesa}/{IdCargo}",
+        Resultados);
         if (res.IsSuccess)
         {
             _toaster.Success("Datos guardados correctamente");
@@ -308,6 +322,7 @@
 
     protected async Task AlCargarActa(UploadResult result)
     {
+
         var res = await _apiClient.GetAsync<string>($"api/Puestos/Acta/{IdMesa}?urlActa={result.Path}");
         if (res.IsSuccess)
         {

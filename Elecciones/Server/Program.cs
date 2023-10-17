@@ -115,10 +115,10 @@ namespace Elecciones
 
 
             app.MapRazorPages();
+            app.MapControllers();
             app.MapFallbackToFile("index.html");
             app.MapHub<NotifyResultHub>("/Resultados/Noify",
                    o => o.Transports = HttpTransportType.WebSockets);
-            app.MapControllers();
 
             app.Run();
         }

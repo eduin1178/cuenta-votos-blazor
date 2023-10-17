@@ -39,21 +39,33 @@
             </div>
             <div class="col-lg-4">
                 <label>Puesto</label>
-                <select class="form-select" value="@IdPuesto"
-                @onchange="AlCambiarPuesto">
-                    <option value="0">Todos</option>
-                    @if (Puestos == null)
-                    {
-                        <option>Cargando...</option>
-                    }
-                    else
-                    {
-                        @foreach (var puesto in Puestos)
+                <div class="input-group">
+
+                    <select class="form-select" value="@IdPuesto"
+                    @onchange="AlCambiarPuesto">
+                        <option value="0">Todos</option>
+                        @if (Puestos == null)
                         {
-                            <option value="@puesto.Id">@puesto.Name</option>
+                            <option>Cargando...</option>
                         }
-                    }
-                </select>
+                        else
+                        {
+                            @foreach (var puesto in Puestos)
+                            {
+                                <option value="@puesto.Id">@puesto.Name</option>
+                            }
+                        }
+                    </select>
+                    <AuthorizeView Roles="0">
+                        <Authorized>
+                            <button class="btn btn-danger"
+                                    title="Eliminar resultados"
+                            @onclick="EliminarResultados">
+                                <i class="oi oi-trash"></i>
+                            </button>
+                        </Authorized>
+                    </AuthorizeView>
+                </div>
             </div>
             <div class="col-lg-4">
                 <label>Mesa</label>
@@ -102,11 +114,10 @@
                                     }
                                 </button>
                                 <div class="flex-row d-flex align-items-center gap-3">
-                                    <img src="@resultado.LogoPartido" width="40" height="40" class="rounded-circle" />
-                                    <span class="h4 align-content-center">
-                                        <strong>
-                                            @resultado.NombrePartido
-                                        </strong>
+                                    <img src="@($"{_storageConfig.CDNUrlBase}/{resultado.LogoPartido}")" width="40" height="40" />
+                                    <span class="h6 align-content-center">
+                                        @resultado.NombrePartido
+
                                     </span>
                                 </div>
                             </Header>
@@ -116,38 +127,24 @@
                                 {
                                     @foreach (var detalle in resultado.Detalles)
                                     {
-                                        <div class="list-group-item">
-                                            <div class="row">
-                                                <div class="col-md-2">
 
-                                                    <img src="@detalle.FotoCandidatoUrl" width="50" height="70"
-                                                         class="rounded-5" />
 
-                                                </div>
-
-                                                <div class="col-md-10">
-                                                    <div class="row">
-
-                                                        <div class="col-md-8">
-                                                            <strong>
-                                                                @detalle.Numero - @detalle.NombreCandidato
-                                                            </strong>
-                                                        </div>
-                                                        <div class="col-md-4">
-                                                            <strong class="float-end">
-                                                                @detalle.VotosCandidato
-                                                            </strong>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-12">
-                                                            <ResultBar Parcial="@detalle.VotosCandidato" Total="@Total" Color="@resultado.ColorPartido" />
-
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                        <div class="mb-1">
+                                            
+                                                <img src="@($"{_storageConfig.CDNUrlBase}/{detalle.FotoCandidatoUrl}")" style="max-width:50px; max-height:100px;"
+                                                     class="rounded-5 g-col-2" />
+                                                <h1 class="float-end">
+                                                    @detalle.VotosCandidato
+                                                </h1>
+                                            <div>
+                                                @detalle.NombreCandidato
                                             </div>
+
                                         </div>
+                                        <ResultBar Parcial="@detalle.VotosCandidato"
+                                        Total="@Total" Color="@resultado.ColorPartido" />
+
+
                                     }
                                 }
                             </Body>
@@ -159,13 +156,18 @@
         </div>
         <div class="row">
             <div class="col-12">
-                <h2 class="float-end">
-                    @Total
-                </h2>
-                <h2>
-                    TOTAL VOTOS:
-                </h2>
+                <div class="card">
+                    <div class="card-body">
 
+                        <h1 class="float-end">
+                            @Total
+                        </h1>
+                        <h1>
+                            TOTAL VOTOS:
+                        </h1>
+
+                    </div>
+                </div>
             </div>
         </div>
     </Body>
@@ -177,6 +179,8 @@
 @inject IToaster _toaster;
 @implements IDisposable
 @inject NavigationManager _navigation
+@inject SweetAlertService _swall
+@inject StorageConfig _storageConfig
 @code {
     protected override void OnInitialized()
     {
@@ -207,8 +211,9 @@
             .WithUrl(_navigation.ToAbsoluteUri("/Resultados/Noify"))
             .Build();
 
-        hubConnection.On<string, int, int>("NotifyResult", async (user, idCargo, idPuesto) => {
-            _toaster.Success("Se ha registrado un nuevo resultado");            
+        hubConnection.On<string, int, int>("NotifyResult", async (user, idCargo, idPuesto) =>
+        {
+            _toaster.Success("Se ha registrado un nuevo resultado");
             await CargarResultados();
         });
 
@@ -292,6 +297,34 @@
         {
             Resultados = res.Model;
             await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            _toaster.Error(res.Message);
+        }
+    }
+
+    protected async Task EliminarResultados()
+    {
+
+        var confirm = await _swall.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confrimar eliminación de resultados",
+                Text = "Confirma que desea eliminar los resultados registrados para el puesto seleccionado?",
+                ShowConfirmButton = true,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Si, eliminar",
+                CancelButtonText = "Cancelar",
+                Icon = SweetAlertIcon.Warning
+            });
+
+        if (!confirm.IsConfirmed) return;
+
+        var res = await _apiClient.DeleteAsync<object>($"api/Resultados/{IdCargo}/{IdPuesto}");
+        if (res.IsSuccess)
+        {
+            _toaster.Success(res.Message);
+            await CargarResultados();
         }
         else
         {

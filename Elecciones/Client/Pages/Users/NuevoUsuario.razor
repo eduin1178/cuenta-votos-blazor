@@ -1,7 +1,6 @@
-﻿@page "/Account/Register"
+﻿@page "/Admin/Users/Add"
 
-<RegisterComponent OnRegister="AlRegistrar" ShowLoginButton="true" />
-
+<Elecciones.Client.Pages.Account.RegisterComponent OnRegister="AlRegistrar" />
 @inject NavigationManager _navigation
 @code {
 
@@ -9,7 +8,7 @@
     {
         if (res.IsSuccess)
         {
-            _navigation.NavigateTo("/Account/Login");
+            _navigation.NavigateTo("/Admin/Users");
         }
     }
 }
