@@ -70,6 +70,12 @@ else
                                 <br />
                                 @mesa.UserFirstName @mesa.UserLastName
                             </div>
+                            @if (!string.IsNullOrEmpty(mesa.E14))
+                            {
+                                <div class="list-group-item">
+                                    <a href="@($"{_storageConfig.CDNUrlBase}/{mesa.E14}")">Descargar acta</a>
+                                </div>
+                            }
                         </div>
                     </Body>
                 </Card>
@@ -124,6 +130,7 @@ else
 @inject NavigationManager _navManager
 @inject AppState _appState
 @inject ApiClient _client
+@inject StorageConfig _storageConfig
 @code {
 
     public PuestoModel? Model { get; set; }

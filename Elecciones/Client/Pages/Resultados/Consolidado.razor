@@ -6,10 +6,15 @@
 <Card>
     <Header>
         <div class="float-end">
+            <AuthorizeView Roles="0">
+                <Authorized>
             <button class="btn btn-sm btn-outline-info mr-2"
             @onclick="DescargarReporte">
                 <i class="oi oi-cloud-download"></i> Descargar
             </button>
+
+                </Authorized>
+            </AuthorizeView>
             <button class="btn btn-sm btn-outline-secondary"
             @onclick="CargarResultados">
                 <i class="oi oi-reload"></i> Actualizar

@@ -79,6 +79,7 @@ namespace CuentaVotos.Services
                         Name = x.Name,
                         Number = x.Number,
                         UserId = x.UserId,
+                        E14 = x.UrlE14,
                         UserFirstName = _context.Users.FirstOrDefault(y => y.Id == x.UserId)?.FirstName,
                         UserLastName = _context.Users.FirstOrDefault(y => y.Id == x.UserId)?.LastName,
                     }).ToList();

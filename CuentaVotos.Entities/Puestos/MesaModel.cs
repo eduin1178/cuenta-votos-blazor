@@ -21,6 +21,7 @@ namespace CuentaVotos.Entities.Puestos
         public int PuestoId { get; set; }
         public int PuestoNumber { get; set; }
         public string Puesto { get; set; } = string.Empty;
+        public string E14 { get; set; }
 
     }
 }
